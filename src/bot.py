@@ -23,7 +23,7 @@ from email import encoders
 
 sys.path.append("C:/NCSU/Sem 1/SE/Project 3/slashbot/")
 try:
-    from src.user import User
+    from code.user import User
 except:
    from user import User
 
@@ -479,8 +479,8 @@ def acceptEmailId(message):
                 Thank you!
                 '''
                 #The mail addresses and password
-                sender_address = 'secheaper@gmail.com'
-                sender_pass = 'csc510se'
+                sender_address = 'test.uses.csc510@gmail.com'
+                sender_pass = 'yqll wvfb jluw gfpy'
                 receiver_address = email
                 #Setup the MIME
                 message = MIMEMultipart()

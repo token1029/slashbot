@@ -7,7 +7,9 @@ import pickle
 import re
 from datetime import datetime, timedelta
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
+matplotlib.use('agg')
 
 logger = logging.getLogger()
 
