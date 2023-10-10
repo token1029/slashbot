@@ -25,9 +25,10 @@ sys.path.append("C:/NCSU/Sem 1/SE/Project 3/slashbot/")
 try:
     from code.user import User
 except:
-   from user import User
+    from user import User
 
-api_token = os.environ["API_TOKEN"]
+# api_token = os.environ["API_TOKEN"]
+api_token = "6548509986:AAGqxVHFel8qb7pnJRd6EjAQUKUp0x2MSBA"
 commands = {
     "menu": "Display this menu",
     "add": "Record/Add a new spending",
@@ -35,14 +36,15 @@ commands = {
     "history": "Display spending history",
     "delete": "Clear/Erase all your records",
     "edit": "Edit/Change spending details",
+    "addMember": "Record/Add a new member for spliting bills",
     "budget": "Set budget for the month",
     "chart": "See your expenditure in different charts",
     "categoryAdd": "Add a new custom category",
     "categoryList": "List all categories",
     "categoryDelete": "Delete a category",
-    "download":"Download your history",
+    "download": "Download your history",
     "displayDifferentCurrency": "Display the sum of expenditures for the current day/month in another currency",
-    "sendEmail":"Send an email with an attachment showing your history"
+    "sendEmail": "Send an email with an attachment showing your history",
 }
 
 DOLLARS_TO_RUPEES = 75.01
@@ -54,6 +56,7 @@ telebot.logger.setLevel(logging.INFO)
 user_list = {}
 option = {}
 all_transactions = []
+temp_member = {}
 completeSpendings = 0
 
 logger = logging.getLogger()
@@ -345,7 +348,7 @@ def show_history(message):
                     table.append([date, category, "$ " + value])
             if count == 0:
                 raise Exception("Sorry! No spending records found!")
-            spend_total_str="<pre>"+ tabulate(table, headers='firstrow')+"</pre>"
+            spend_total_str = "<pre>" + tabulate(table, headers="firstrow") + "</pre>"
             bot.send_message(chat_id, spend_total_str, parse_mode="HTML")
 
     except Exception as ex:
@@ -376,7 +379,7 @@ def download_history(message):
                     count = count + 1
                     date = transaction["Date"].strftime("%m/%d/%y")
                     value = format(transaction["Value"], ".2f")
-                    table.append([date, category, "$"+value])
+                    table.append([date, category, "$" + value])
             if count == 0:
                 raise Exception("Sorry! No spending records found!")
 
@@ -389,11 +392,11 @@ def download_history(message):
             buf.name = "history.csv"
             bot.send_document(chat_id, buf)
 
-
     except Exception as ex:
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, str(ex))
-    
+
+
 @bot.message_handler(commands=["sendEmail"])
 def send_email(message):
     """
@@ -417,7 +420,7 @@ def send_email(message):
                     count = count + 1
                     date = transaction["Date"].strftime("%m/%d/%y")
                     value = format(transaction["Value"], ".2f")
-                    table.append([date, category, "$"+value])
+                    table.append([date, category, "$" + value])
             if count == 0:
                 raise Exception("Sorry! No spending records found!")
 
@@ -440,8 +443,8 @@ def send_email(message):
 
 def acceptEmailId(message):
     email = message.text
-    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-    if(re.fullmatch(regex, email)):
+    regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
+    if re.fullmatch(regex, email):
         try:
             chat_id = str(message.chat.id)
             count = 0
@@ -456,11 +459,11 @@ def acceptEmailId(message):
                         count = count + 1
                         date = transaction["Date"].strftime("%m/%d/%y")
                         value = format(transaction["Value"], ".2f")
-                        table.append([date, category, "$"+value])
+                        table.append([date, category, "$" + value])
                 if count == 0:
                     raise Exception("Sorry! No spending records found!")
 
-                with open('history.csv', 'w', newline = '') as file:
+                with open("history.csv", "w", newline="") as file:
                     writer = csv.writer(file)
                     writer.writerows(table)
                 # s = io.StringIO()
@@ -474,47 +477,49 @@ def acceptEmailId(message):
                 # writer.writerow(u"date", u"category", u"cost")
 
                 # bot.send_document(chat_id, buf)
-                mail_content = '''Hello,
+                mail_content = """Hello,
                 This email has an attached copy of your expenditure history.
                 Thank you!
-                '''
-                #The mail addresses and password
-                sender_address = 'test.uses.csc510@gmail.com'
-                sender_pass = 'yqll wvfb jluw gfpy'
+                """
+                # The mail addresses and password
+                sender_address = "test.uses.csc510@gmail.com"
+                sender_pass = "yqll wvfb jluw gfpy"
                 receiver_address = email
-                #Setup the MIME
+                # Setup the MIME
                 message = MIMEMultipart()
-                message['From'] = sender_address
-                message['To'] = receiver_address
-                message['Subject'] = 'Spending History document'
-                #The subject line
-                #The body and the attachments for the mail
-                message.attach(MIMEText(mail_content, 'plain'))
+                message["From"] = sender_address
+                message["To"] = receiver_address
+                message["Subject"] = "Spending History document"
+                # The subject line
+                # The body and the attachments for the mail
+                message.attach(MIMEText(mail_content, "plain"))
                 attach_file_name = "history.csv"
-                attach_file = open(attach_file_name, 'rb')
-                payload = MIMEBase('application', 'octate-stream')
+                attach_file = open(attach_file_name, "rb")
+                payload = MIMEBase("application", "octate-stream")
                 payload.set_payload((attach_file).read())
-                encoders.encode_base64(payload) #encode the attachment
-                #add payload header with filename
-                payload.add_header('Content-Decomposition', 'attachment', filename=attach_file_name)
+                encoders.encode_base64(payload)  # encode the attachment
+                # add payload header with filename
+                payload.add_header(
+                    "Content-Decomposition", "attachment", filename=attach_file_name
+                )
                 message.attach(payload)
-                #Create SMTP session for sending the mail
-                session = smtplib.SMTP('smtp.gmail.com', 587) #use gmail with port
-                session.starttls() #enable security
-                session.login(sender_address, sender_pass) #login with mail_id and password
+                # Create SMTP session for sending the mail
+                session = smtplib.SMTP("smtp.gmail.com", 587)  # use gmail with port
+                session.starttls()  # enable security
+                session.login(
+                    sender_address, sender_pass
+                )  # login with mail_id and password
                 text = message.as_string()
                 session.sendmail(sender_address, receiver_address, text)
                 session.quit()
 
                 # bot.send_message(message.chat.id, 'Mail Sent')
 
-
         except Exception as ex:
             logger.error(str(ex), exc_info=True)
             bot.reply_to(message, str(ex))
     else:
-        bot.send_message(message.chat.id, 'incorrect email')
-        
+        bot.send_message(message.chat.id, "incorrect email")
 
 
 @bot.message_handler(commands=["display"])
@@ -938,6 +943,110 @@ def receive_new_category(message):
         bot.reply_to(message, "Oh no. " + str(ex))
 
 
+@bot.message_handler(commands=["addMember"])
+def add_Member(message):
+    """
+    Handles the command 'categoryAdd' and then displays a message prompting the user to enter the category name.
+    The function 'receive_new_category' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+
+    try:
+        chat_id = str(message.chat.id)
+        # option.pop(chat_id, None)
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        # clear the temp_member attribute To Do : add name with given chat ID
+        temp_member.pop(chat_id, None)
+        memberName = bot.reply_to(message, "Enter Member name")
+        bot.register_next_step_handler(memberName, receive_new_member_name)
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def receive_new_member_name(message):
+    """
+    This function receives the member name that user inputs and save the name under temp_member list
+    The function 'receive_new_member_email' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        memberName = message.text.strip()
+        chat_id = str(message.chat.id)
+        if memberName == "":  # category cannot be empty
+            raise Exception("Member name cannot be empty")
+        if memberName in user_list[chat_id].members:
+            raise Exception("Member already exists!")
+        temp_member[chat_id] = memberName
+        memberEmail = bot.reply_to(message, "Enter Member email address")
+        bot.register_next_step_handler(memberEmail, receive_new_member_email)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def receive_new_member_email(message):
+    """
+    This function receives the member email address that user inputs and then calls user.add_member with
+    member name and member email as input for appeending a new member in the dict
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        memberEmail = message.text.strip()
+        chat_id = str(message.chat.id)
+        if memberEmail == "":  # category cannot be empty
+            raise Exception("Email address cannot be empty")
+        user_list[chat_id].add_member(temp_member[chat_id], memberEmail, chat_id)
+        bot.send_message(
+            chat_id, "{} has been added as a new member".format(temp_member[chat_id])
+        )
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+@bot.message_handler(commands=["memberList"])
+def member_list(message):
+    """
+    Handles the command 'memberList'. Lists all members.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        chat_id = str(message.chat.id)
+        if len(user_list[chat_id].members.keys()) == 0:
+            raise Exception("Sorry! No members found!")
+        category_list_str = "Here is your member list : \n"
+        for index, member in enumerate(user_list[chat_id].members.keys()):
+            category_list_str += "{}. {}   {}".format(
+                index + 1, member, user_list[chat_id].members(member)[0] + "\n"
+            )
+        bot.send_message(chat_id, category_list_str)
+
+    except Exception as ex:
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
 @bot.message_handler(commands=["categoryList"])
 def category_list(message):
     """
@@ -1181,7 +1290,7 @@ def get_chart(message):
     :return: None
     """
     # Original Code
-    
+
     # chat_id = str(message.chat.id)
     # chart_file = user_list[chat_id].create_chart(chat_id)
     # with open(chart_file, "rb") as f:
@@ -1195,7 +1304,6 @@ def get_chart(message):
         with open(cf, "rb") as f:
             bot.send_photo(chat_id, f)
             # bot.send_photo(chat_id, cf)
-
 
 
 def create_header(user):
@@ -1311,6 +1419,7 @@ def command_display_currency(message):
             logger.error(str(ex), exc_info=True)
             bot.reply_to(message, "Oops! - \nError : " + str(ex))
 
+
 def display_total_currency(message):
     """
     Receives the input time period and displays the transaction summary for the corresponding time period.
@@ -1382,11 +1491,11 @@ def display_total_currency(message):
             total_spendings += query_result
             total_spendings += "Total Value {:.2f}\n".format(total_value)
             total_spendings += "Budget for the month {}".format(str(budget_value))
-            global completeSpendings # pylint: disable=global-statement
+            global completeSpendings  # pylint: disable=global-statement
             completeSpendings = total_value
             choice = bot.reply_to(
-                        message, "Which currency to you want to covert to?", reply_markup=markup
-                    )
+                message, "Which currency to you want to covert to?", reply_markup=markup
+            )
             bot.register_next_step_handler(choice, display_total_currency2)
             # bot.send_message(chat_id, total_spendings)
 
@@ -1402,33 +1511,30 @@ def display_total_currency2(message):
         selection = message.text
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup.row_width = 2
-        
+
         if selection == "INR":
             completeExpenses = completeSpendings * DOLLARS_TO_RUPEES
-            completeExpensesMessage = (
-            "The total expenses in INR is Rs. " + str(completeExpenses)
-        )
+            completeExpensesMessage = "The total expenses in INR is Rs. " + str(
+                completeExpenses
+            )
             bot.reply_to(message, completeExpensesMessage)
         if selection == "EUR":
             completeExpenses = completeSpendings * DOLLARS_TO_EUROS
             completeExpensesMessage = (
-            "The total expenses in EUR is " + str(completeExpenses) + " EUR"
-        )
+                "The total expenses in EUR is " + str(completeExpenses) + " EUR"
+            )
             bot.reply_to(message, completeExpensesMessage)
         if selection == "CHF":
             completeExpenses = completeSpendings * DOLLARS_TO_EUROS
             completeExpensesMessage = (
-            "The total expenses in Swiss Franc is " + str(completeExpenses) + " CHF"
-        )
+                "The total expenses in Swiss Franc is " + str(completeExpenses) + " CHF"
+            )
             bot.reply_to(message, completeExpensesMessage)
-
 
     except Exception as ex:
         print("Exception occurred : ")
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, "Processing Failed - Error: " + str(ex))
-
-
 
 
 if __name__ == "__main__":

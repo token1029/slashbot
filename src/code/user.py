@@ -9,27 +9,23 @@ from datetime import datetime, timedelta
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
-matplotlib.use('agg')
+
+matplotlib.use("agg")
 
 logger = logging.getLogger()
 
 
 class User:
     def __init__(self, userid):
-        self.spend_categories = [
-            "Food",
-            "Groceries",
-            "Utilities",
-            "Transport",
-            "Shopping",
-            "Miscellaneous",
-        ]
+        self.spend_categories = ["ggggggg"]
         self.spend_display_option = ["Day", "Month"]
         self.transactions = {}
         self.edit_transactions = {}
         self.edit_category = {}
         self.monthly_budget = 0
         self.rules = {}
+        # new added 2023
+        self.members = {}
 
         # for the calendar widget
         self.max_date = datetime.today() + timedelta(days=1)
@@ -372,21 +368,29 @@ class User:
         plt.clf()
         plt.pie(totals, labels=labels)
         plt.title("Your Expenditure Report")
-        plt.savefig("data/{}_pie_chart.png".format(userid)) # Ensure that the file name is unique
-        charts.append("data/{}_pie_chart.png".format(userid)) # Ensure that the file name is unique
+        plt.savefig(
+            "data/{}_pie_chart.png".format(userid)
+        )  # Ensure that the file name is unique
+        charts.append(
+            "data/{}_pie_chart.png".format(userid)
+        )  # Ensure that the file name is unique
 
         # Bar Graph
         plt.clf()
         plt.switch_backend("Agg")
         plt.title("Your Expenditure Report")
         plt.bar(labels, totals)
-        plt.xlabel('Categories')
-        plt.ylabel('Expenditure')
+        plt.xlabel("Categories")
+        plt.ylabel("Expenditure")
         plt.title("Your Expenditure Report")
-        plt.savefig("data/{}_bar_chart.png".format(userid)) # Ensure that the file name is unique
-        charts.append("data/{}_bar_chart.png".format(userid)) # Ensure that the file name is unique
+        plt.savefig(
+            "data/{}_bar_chart.png".format(userid)
+        )  # Ensure that the file name is unique
+        charts.append(
+            "data/{}_bar_chart.png".format(userid)
+        )  # Ensure that the file name is unique
 
-        # Add more visualizations here. Maintain the above format while adding more visualizations. 
+        # Add more visualizations here. Maintain the above format while adding more visualizations.
 
         return charts
 
@@ -404,6 +408,24 @@ class User:
             self.spend_categories.append(new_category)
             self.transactions[new_category] = []
             self.rules[new_category] = []
+            self.save_user(userid)
+
+        except Exception as e:
+            logger.error(str(e), exc_info=True)
+
+    def add_member(self, new_member_name, new_email_address, userid):
+        """
+        Stores the member to member list.
+
+        :param new_member: name of the new member
+        :type: string
+        :param userid: userid string which is also the file name
+        :type: string
+        :return: None
+        """
+        try:
+            # self.spend_categories.append(new_category)
+            self.members[new_member_name].append(new_email_address)
             self.save_user(userid)
 
         except Exception as e:
