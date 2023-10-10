@@ -27,8 +27,8 @@ try:
 except:
     from user import User
 
-# api_token = os.environ["API_TOKEN"]
-api_token = "6548509986:AAGqxVHFel8qb7pnJRd6EjAQUKUp0x2MSBA"
+api_token = os.environ["API_TOKEN"]
+# api_token = "6548509986:AAGqxVHFel8qb7pnJRd6EjAQUKUp0x2MSBA"
 commands = {
     "menu": "Display this menu",
     "add": "Record/Add a new spending",
@@ -39,6 +39,7 @@ commands = {
     "addMember": "Record/Add a new member for spliting bills",
     "memberList": "List all members with associated email address",
     "memberDelete": "Delete a member",
+    "splitBill": "Split a bill across members",
     "budget": "Set budget for the month",
     "chart": "See your expenditure in different charts",
     "categoryAdd": "Add a new custom category",
@@ -59,6 +60,7 @@ user_list = {}
 option = {}
 all_transactions = []
 temp_member = {}
+temp_bill = {}
 completeSpendings = 0
 
 logger = logging.getLogger()
@@ -1183,6 +1185,91 @@ def receive_delete_member(message):
         print("Exception occurred : ")
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, str(ex))
+
+
+@bot.message_handler(commands=["splitBill"])
+def split_Bill(message):
+    """
+    Handles the command 'splitBill', which split a bill across members with percentage.
+    The function 'receive_new_bill_name' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+
+    try:
+        chat_id = str(message.chat.id)
+        if len(user_list[chat_id].members.keys()) < 2:
+            raise Exception("There should be at least 2 users to split the bill")
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        # clear the temp_member attribute To Do : add name with given chat ID
+        temp_bill.pop(chat_id, None)
+        billName = bot.reply_to(message, "Enter Bill name")
+        bot.register_next_step_handler(billName, receive_new_bill_name)
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def receive_new_bill_name(message):
+    """
+    This function receives the bill name that is going to be splited
+    The function 'receive_new_bill_amount' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        billName = message.text.strip()
+        chat_id = str(message.chat.id)
+        if billName == "":  # category cannot be empty
+            raise Exception("Bill name cannot be empty")
+        temp_bill[chat_id] = [billName]
+        billAmount = bot.reply_to(message, "Enter bill amount")
+        bot.register_next_step_handler(billAmount, receive_new_bill_amount)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def receive_new_bill_amount(message):
+    """
+    This function receives the bill amount that is going to be splited
+    The function 'receive_new_bill_creditor' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        billAmount = int(message.text.strip())
+        chat_id = str(message.chat.id)
+        if billAmount <= 0:  # category cannot be empty
+            raise Exception("Bill should be greater than 0")
+        temp_bill[chat_id].append(billAmount)
+        creditor = bot.reply_to(message, "Choose bill creditor")
+        bot.register_next_step_handler(creditor, receive_new_bill_creditor)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def receive_new_bill_creditor(message):
+    """
+    This function receives the bill credtior that pay the bill
+    The function 'receive_new_bill_debtor' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
 
 
 @bot.message_handler(commands=["delete"])
