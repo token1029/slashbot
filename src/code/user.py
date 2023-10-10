@@ -17,7 +17,14 @@ logger = logging.getLogger()
 
 class User:
     def __init__(self, userid):
-        self.spend_categories = ["ggggggg"]
+        self.spend_categories = [
+            "Food",
+            "Groceries",
+            "Utilities",
+            "Transport",
+            "Shopping",
+            "Miscellaneous",
+        ]
         self.spend_display_option = ["Day", "Month"]
         self.transactions = {}
         self.edit_transactions = {}
@@ -425,7 +432,24 @@ class User:
         """
         try:
             # self.spend_categories.append(new_category)
-            self.members[new_member_name].append(new_email_address)
+            self.members[new_member_name] = [new_email_address]
+            self.save_user(userid)
+
+        except Exception as e:
+            logger.error(str(e), exc_info=True)
+
+    def delete_member(self, member, userid):
+        """
+        Removes the member from member list.
+
+        :param category: name of the member to be removed
+        :type: string
+        :param userid: userid string which is also the file name
+        :type: string
+        :return: None
+        """
+        try:
+            self.members.pop(member, None)
             self.save_user(userid)
 
         except Exception as e:

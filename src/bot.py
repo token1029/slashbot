@@ -37,6 +37,8 @@ commands = {
     "delete": "Clear/Erase all your records",
     "edit": "Edit/Change spending details",
     "addMember": "Record/Add a new member for spliting bills",
+    "memberList": "List all members with associated email address",
+    "memberDelete": "Delete a member",
     "budget": "Set budget for the month",
     "chart": "See your expenditure in different charts",
     "categoryAdd": "Add a new custom category",
@@ -943,110 +945,6 @@ def receive_new_category(message):
         bot.reply_to(message, "Oh no. " + str(ex))
 
 
-@bot.message_handler(commands=["addMember"])
-def add_Member(message):
-    """
-    Handles the command 'categoryAdd' and then displays a message prompting the user to enter the category name.
-    The function 'receive_new_category' is called next.
-
-    :param message: telebot.types.Message object representing the message object
-    :type: object
-    :return: None
-    """
-
-    try:
-        chat_id = str(message.chat.id)
-        # option.pop(chat_id, None)
-        if chat_id not in user_list.keys():
-            user_list[chat_id] = User(chat_id)
-        # clear the temp_member attribute To Do : add name with given chat ID
-        temp_member.pop(chat_id, None)
-        memberName = bot.reply_to(message, "Enter Member name")
-        bot.register_next_step_handler(memberName, receive_new_member_name)
-
-    except Exception as ex:
-        print("Exception occurred : ")
-        logger.error(str(ex), exc_info=True)
-        bot.reply_to(message, "Oh no. " + str(ex))
-
-
-def receive_new_member_name(message):
-    """
-    This function receives the member name that user inputs and save the name under temp_member list
-    The function 'receive_new_member_email' is called next.
-
-    :param message: telebot.types.Message object representing the message object
-    :type: object
-    :return: None
-    """
-    try:
-        memberName = message.text.strip()
-        chat_id = str(message.chat.id)
-        if memberName == "":  # category cannot be empty
-            raise Exception("Member name cannot be empty")
-        if memberName in user_list[chat_id].members:
-            raise Exception("Member already exists!")
-        temp_member[chat_id] = memberName
-        memberEmail = bot.reply_to(message, "Enter Member email address")
-        bot.register_next_step_handler(memberEmail, receive_new_member_email)
-    except Exception as ex:
-        print("Exception occurred : ")
-        logger.error(str(ex), exc_info=True)
-        bot.reply_to(message, "Oh no. " + str(ex))
-
-
-def receive_new_member_email(message):
-    """
-    This function receives the member email address that user inputs and then calls user.add_member with
-    member name and member email as input for appeending a new member in the dict
-
-    :param message: telebot.types.Message object representing the message object
-    :type: object
-    :return: None
-    """
-    try:
-        memberEmail = message.text.strip()
-        chat_id = str(message.chat.id)
-        if memberEmail == "":  # category cannot be empty
-            raise Exception("Email address cannot be empty")
-        user_list[chat_id].add_member(temp_member[chat_id], memberEmail, chat_id)
-        bot.send_message(
-            chat_id, "{} has been added as a new member".format(temp_member[chat_id])
-        )
-    except Exception as ex:
-        print("Exception occurred : ")
-        logger.error(str(ex), exc_info=True)
-        bot.reply_to(message, "Oh no. " + str(ex))
-
-
-@bot.message_handler(commands=["memberList"])
-def member_list(message):
-    """
-    Handles the command 'memberList'. Lists all members.
-
-    :param message: telebot.types.Message object representing the message object
-    :type: object
-    :return: None
-    """
-    try:
-        chat_id = str(message.chat.id)
-        if chat_id not in user_list.keys():
-            user_list[chat_id] = User(chat_id)
-        chat_id = str(message.chat.id)
-        if len(user_list[chat_id].members.keys()) == 0:
-            raise Exception("Sorry! No members found!")
-        category_list_str = "Here is your member list : \n"
-        for index, member in enumerate(user_list[chat_id].members.keys()):
-            category_list_str += "{}. {}   {}".format(
-                index + 1, member, user_list[chat_id].members(member)[0] + "\n"
-            )
-        bot.send_message(chat_id, category_list_str)
-
-    except Exception as ex:
-        logger.error(str(ex), exc_info=True)
-        bot.reply_to(message, str(ex))
-
-
 @bot.message_handler(commands=["categoryList"])
 def category_list(message):
     """
@@ -1121,6 +1019,166 @@ def receive_delete_category(message):
             )
         user_list[chat_id].delete_category(category, chat_id)
         bot.reply_to(message, "{} has been removed from category list".format(category))
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
+@bot.message_handler(commands=["addMember"])
+def add_Member(message):
+    """
+    Handles the command 'categoryAdd' and then displays a message prompting the user to enter the category name.
+    The function 'receive_new_category' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+
+    try:
+        chat_id = str(message.chat.id)
+        # option.pop(chat_id, None)
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        # clear the temp_member attribute To Do : add name with given chat ID
+        temp_member.pop(chat_id, None)
+        memberName = bot.reply_to(message, "Enter Member name")
+        bot.register_next_step_handler(memberName, receive_new_member_name)
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def receive_new_member_name(message):
+    """
+    This function receives the member name that user inputs and save the name under temp_member list
+    The function 'receive_new_member_email' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        memberName = message.text.strip()
+        chat_id = str(message.chat.id)
+        if memberName == "":  # category cannot be empty
+            raise Exception("Member name cannot be empty")
+        if memberName in user_list[chat_id].members:
+            raise Exception("Member already exists!")
+        temp_member[chat_id] = memberName
+        memberEmail = bot.reply_to(message, "Enter Member email address")
+        bot.register_next_step_handler(memberEmail, receive_new_member_email)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def receive_new_member_email(message):
+    """
+    This function receives the member email address that user inputs and then calls user.add_member with
+    member name and member email as input for appeending a new member in the dict
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        memberEmail = message.text.strip()
+        chat_id = str(message.chat.id)
+        regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
+        if re.fullmatch(regex, memberEmail):
+            user_list[chat_id].add_member(temp_member[chat_id], memberEmail, chat_id)
+            bot.send_message(
+                chat_id,
+                "{} has been added as a new member".format(temp_member[chat_id]),
+            )
+        else:
+            bot.send_message(message.chat.id, "incorrect email")
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+@bot.message_handler(commands=["memberList"])
+def member_list(message):
+    """
+    Handles the command 'memberList'. Lists all members.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        chat_id = str(message.chat.id)
+        if len(user_list[chat_id].members.keys()) == 0:
+            raise Exception("Sorry! No members found!")
+        category_list_str = "Here is your member list : \n"
+        for index, member in enumerate(user_list[chat_id].members.keys()):
+            category_list_str += "{}. {}   {}".format(
+                index + 1, member, user_list[chat_id].members[member][0] + "\n"
+            )
+        bot.send_message(chat_id, category_list_str)
+
+    except Exception as ex:
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
+@bot.message_handler(commands=["memberDelete"])
+def member_delete(message):
+    """
+    Handles the command 'memberDelete'. Lists all members from which the user can choose a member to delete.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        temp_member.pop(chat_id, None)
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        allMembers = user_list[chat_id].members
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup.row_width = 2
+        for c in allMembers:
+            markup.add(c)
+        msg = bot.reply_to(message, "Select Member", reply_markup=markup)
+        bot.register_next_step_handler(msg, receive_delete_member)
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
+
+def receive_delete_member(message):
+    """
+    Checks whether the selected member can be deleted and calls user.delete_member if the member can be deleted.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        member = message.text.strip()
+        if member not in user_list[chat_id].members:
+            raise Exception("Oops! Member does not exist!")
+        # if len(user_list[chat_id].members[member]) != 0:
+        #     raise Exception(
+        #         "Sorry! This member has transactions. Delete those transactions to proceed."
+        #     )
+        user_list[chat_id].delete_member(member, chat_id)
+        bot.reply_to(message, "{} has been removed from member list".format(member))
     except Exception as ex:
         print("Exception occurred : ")
         logger.error(str(ex), exc_info=True)
