@@ -442,7 +442,7 @@ class User:
         """
         Removes the member from member list.
 
-        :param category: name of the member to be removed
+        :param member: name of the member to be removed
         :type: string
         :param userid: userid string which is also the file name
         :type: string
@@ -450,6 +450,46 @@ class User:
         """
         try:
             self.members.pop(member, None)
+            self.save_user(userid)
+
+        except Exception as e:
+            logger.error(str(e), exc_info=True)
+
+    def split_bill(self, bill, userid):
+        """
+        spilt the bill cross the member list.
+
+        :param member: name of the member to be removed
+        :type: string
+        :param userid: userid string which is also the file name
+        :type: string
+        :return: None
+        """
+        try:
+            # self.members[new_member_name] = [new_email_address]
+            debators = " "
+            single = bill[userid][1] / (len(bill[userid]) - 2)
+            total = bill[userid][1] - single
+            # self.members[member].append("Get ")
+            for member in self.members.keys():
+                if member != bill[userid][2]:
+                    debators += member
+                    self.members[member].append(
+                        "Give "
+                        + str(single)
+                        + " to "
+                        + bill[userid][2]
+                        + " for bill called "
+                        + bill[userid][0]
+                    )
+            self.members[bill[userid][2]].append(
+                "Get "
+                + str(total)
+                + " from "
+                + debators
+                + " for bill called "
+                + bill[userid][0]
+            )
             self.save_user(userid)
 
         except Exception as e:

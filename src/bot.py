@@ -39,7 +39,8 @@ commands = {
     "addMember": "Record/Add a new member for spliting bills",
     "memberList": "List all members with associated email address",
     "memberDelete": "Delete a member",
-    "splitBill": "Split a bill across members",
+    # "splitBill": "Split a bill across members",
+    "viewSplitBill": "View the bills has been splited",
     "budget": "Set budget for the month",
     "chart": "See your expenditure in different charts",
     "categoryAdd": "Add a new custom category",
@@ -1122,12 +1123,18 @@ def member_list(message):
         chat_id = str(message.chat.id)
         if len(user_list[chat_id].members.keys()) == 0:
             raise Exception("Sorry! No members found!")
-        category_list_str = "Here is your member list : \n"
+        member_list_str = "Here is your member list : \n"
         for index, member in enumerate(user_list[chat_id].members.keys()):
-            category_list_str += "{}. {}   {}".format(
-                index + 1, member, user_list[chat_id].members[member][0] + "\n"
+            member_list_str += "{}. {}   {}  ".format(
+                index + 1, member, user_list[chat_id].members[member][0]
             )
-        bot.send_message(chat_id, category_list_str)
+            if len(user_list[chat_id].members[member]) > 1:
+                idx = 1
+                while len(user_list[chat_id].members[member]) - idx > 0:
+                    member_list_str += user_list[chat_id].members[member][idx] + " "
+                    idx += 1
+            member_list_str += "\n"
+        bot.send_message(chat_id, member_list_str)
 
     except Exception as ex:
         logger.error(str(ex), exc_info=True)
@@ -1229,7 +1236,10 @@ def receive_new_bill_name(message):
         chat_id = str(message.chat.id)
         if billName == "":  # category cannot be empty
             raise Exception("Bill name cannot be empty")
+        # bill name at index 0
         temp_bill[chat_id] = [billName]
+        #
+        # print(temp_bill[chat_id][0])
         billAmount = bot.reply_to(message, "Enter bill amount")
         bot.register_next_step_handler(billAmount, receive_new_bill_amount)
     except Exception as ex:
@@ -1252,8 +1262,14 @@ def receive_new_bill_amount(message):
         chat_id = str(message.chat.id)
         if billAmount <= 0:  # category cannot be empty
             raise Exception("Bill should be greater than 0")
+        # bill amount at index 1
         temp_bill[chat_id].append(billAmount)
-        creditor = bot.reply_to(message, "Choose bill creditor")
+        allMembers = user_list[chat_id].members
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup.row_width = 2
+        for c in allMembers:
+            markup.add(c)
+        creditor = bot.reply_to(message, "Choose a bill creditor", reply_markup=markup)
         bot.register_next_step_handler(creditor, receive_new_bill_creditor)
     except Exception as ex:
         print("Exception occurred : ")
@@ -1270,6 +1286,88 @@ def receive_new_bill_creditor(message):
     :type: object
     :return: None
     """
+    try:
+        chat_id = str(message.chat.id)
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        creditor = message.text.strip()
+        if creditor not in user_list[chat_id].members:
+            raise Exception("Oops! Member does not exist!")
+        # bill creditor at index 2
+        temp_bill[chat_id].append(creditor)
+        bot.reply_to(message, "{} has been chosen as creditor".format(creditor))
+        initiate_new_bill_debator(message.chat.id)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
+
+def initiate_new_bill_debator(chat_id):
+    """
+    This function initiate receive_new_bill_debator, which is called everytime when a
+    new debator is going to be added
+
+    :param id: the id# of the current chat
+    :type: object
+    :return: None
+    """
+
+    try:
+        str_chat_id = str(chat_id)
+        allMembers = user_list[str_chat_id].members
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup.row_width = 2
+        for c in allMembers:
+            if c != str(temp_bill[str_chat_id][2]):
+                markup.add(c)
+        markup.add("There is no more Debator.")
+        debator = bot.send_message(
+            chat_id, "Choose a bill debator", reply_markup=markup
+        )
+        # print(temp_bill[str_chat_id][0])
+        # print(str(temp_bill[str_chat_id][1]))
+        # print(str(temp_bill[str_chat_id][2]))
+        bot.register_next_step_handler(debator, receive_new_bill_debator)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.send_message(chat_id, str(ex))
+
+
+def receive_new_bill_debator(message):
+    """
+    This function receives the bill credtior that pay the bill
+    The function 'receive_new_bill_debtor' is called next if the user would like
+    to add more debators
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+
+    try:
+        chat_id = str(message.chat.id)
+        debator = message.text.strip()
+        if debator == "There is no more Debator.":
+            user_list[chat_id].split_bill(temp_bill, chat_id)
+            bot.send_message(message.chat.id, "Your bill has been successfully spilt")
+            bot.send_message(message.chat.id, user_list[chat_id].members)
+            return
+        else:
+            # debators starts from index 3...
+            temp_bill[chat_id].append(debator)
+            initiate_new_bill_debator(chat_id)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
+# @bot.message_handler(commands=["viewSplitBill"])
+# def view_split_Bill(message):
+#     bot.send_message(message.chat.id, user_list[str(message.chat.id)].members.keys())
+#     bot.send_message(message.chat.id, user_list[str(message.chat.id)].members.values())
 
 
 @bot.message_handler(commands=["delete"])
