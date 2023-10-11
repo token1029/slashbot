@@ -1352,7 +1352,6 @@ def receive_new_bill_debator(message):
         if debator == "There is no more Debator.":
             user_list[chat_id].split_bill(temp_bill, chat_id)
             bot.send_message(message.chat.id, "Your bill has been successfully spilt")
-            bot.send_message(message.chat.id, user_list[chat_id].members)
             return
         else:
             # debators starts from index 3...
