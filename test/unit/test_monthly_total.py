@@ -1,7 +1,7 @@
 """
 Tests the monthly_total_method
 """
-
+import unittest
 from BaseCase import BaseCase
 from datetime import datetime
 
