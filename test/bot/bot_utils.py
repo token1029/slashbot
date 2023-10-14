@@ -12,7 +12,7 @@ from telebot import types
 import sys
 # sys.path.append("E:\SE\project phase 3\slashbot\src")
 import src.bot
-from src.user import User
+from src.code.user import User
 
 CHAT_ID = os.environ['CHAT_ID'] if 'CHAT_ID' in os.environ else 1
 TOKEN = os.environ['API_TOKEN'] if 'API_TOKEN' in os.environ else 0
