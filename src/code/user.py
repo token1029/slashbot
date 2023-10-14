@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 
 matplotlib.use("agg")
 
@@ -432,7 +433,7 @@ class User:
         """
         try:
             # self.spend_categories.append(new_category)
-            self.members[new_member_name] = [new_email_address]
+            self.members[new_member_name] = [new_email_address, {'total': 0.}, {}]
             self.save_user(userid)
 
         except Exception as e:
@@ -467,33 +468,89 @@ class User:
         """
         try:
             # self.members[new_member_name] = [new_email_address]
-            debators = " "
+            total = {}
             single = bill[userid][1] / (len(bill[userid]) - 2)
-            total = bill[userid][1] - single
+            charge = bill[userid][1] - single
             # self.members[member].append("Get ")
             for member in self.members.keys():
                 if member != bill[userid][2]:
-                    debators += member
-                    self.members[member].append(
-                        "Give "
-                        + str(single)
-                        + " to "
-                        + bill[userid][2]
-                        + " for bill called "
-                        + bill[userid][0]
-                    )
-            self.members[bill[userid][2]].append(
-                "Get "
-                + str(total)
-                + " from "
-                + debators
-                + " for bill called "
-                + bill[userid][0]
-            )
+                    bill_name = bill[userid][0]
+                    self.members[member][1][bill_name] = -single
+                    # update the total number
+                    self.members[member][1]['total'] -= single
+                    total[member] = self.members[member][1]['total']
+            creditor = bill[userid][2]
+            self.members[creditor][1][bill_name] = charge
+            # update the total number
+            self.members[creditor][1]['total'] += charge
+            total[creditor] = self.members[creditor][1]['total']
+            print(total)
+
+            # record how to pay
+            self.balance(total)
             self.save_user(userid)
 
         except Exception as e:
             logger.error(str(e), exc_info=True)
+
+    def balance(self, total):
+        """
+        Calucate the payment information for each memeber.
+
+        :param total: balance information as a dict
+        :type: dict
+        :return: None
+        """
+        if max(abs(np.array(list(total.values())))) <= 1e-2:
+            return
+        
+        max_value = max(np.array(list(total.values())))
+        min_value = min(np.array(list(total.values())))
+        for member in total.keys():
+            if total[member] == max_value:
+                max_member = member
+            if total[member] == min_value:
+                min_member = member
+        
+        if max_value > min_value:
+            total[max_member] = max_value + min_value
+            total[min_member] = 0.
+            self.members[max_member][2][min_member] = -min_value
+            self.members[min_member][2][max_member] = min_value
+        else:
+            total[min_member] = max_value + min_value
+            total[max_member] = 0.
+            self.members[max_member][2][min_member] = max_value
+            self.members[min_member][2][max_member] = -max_value
+
+        return self.balance(total)
+    
+    def get_description(self, member):
+        """
+        Get the payment description for the given member.
+
+        :param member: name of the member
+        :type: string
+        :return: the corresponding descreption
+        """
+        data = self.members[member][2]
+        description = ""
+        for name in data.keys():
+            if data[name] > 0:
+                description += f"Get ${abs(data[name]):.2f} from {name}\n"
+            elif data[name] < 0:
+                description += f"Give ${abs(data[name]):.2f} to {name}\n"
+        return description
+        
+    def clear_bills(self):
+        """
+        Clear the bill historys.
+
+        :return: None
+        """
+        for member in self.members.keys():
+            self.members[member][1] = {'total': 0.}
+            self.members[member][2] = {}
 
     def delete_category(self, category, userid):
         """

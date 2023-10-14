@@ -22,10 +22,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 sys.path.append("C:/NCSU/Sem 1/SE/Project 3/slashbot/")
-try:
-    from code.user import User
-except:
-    from user import User
+from code.user import User
 
 api_token = os.environ["API_TOKEN"]
 # api_token = "6548509986:AAGqxVHFel8qb7pnJRd6EjAQUKUp0x2MSBA"
@@ -40,7 +37,9 @@ commands = {
     "memberList": "List all members with associated email address",
     "memberDelete": "Delete a member",
     "splitBill": "Split a bill across members",
-    # "viewSplitBill": "View the bills has been splited",
+    "clearBill": "Clear previous bills to be splited",
+    "viewSplitBill": "View the bills has been splited",
+    "emailBill": "Sent email to the members of bills showing the needed transactions", 
     "budget": "Set budget for the month",
     "chart": "See your expenditure in different charts",
     "categoryAdd": "Add a new custom category",
@@ -394,7 +393,7 @@ def download_history(message):
             buf = io.BytesIO()
             buf.write(s.getvalue().encode())
             buf.seek(0)
-            buf.name = "history.csv"
+            buf.name = "./data/history.csv"
             bot.send_document(chat_id, buf)
 
     except Exception as ex:
@@ -413,31 +412,11 @@ def send_email(message):
     """
     try:
         chat_id = str(message.chat.id)
-        count = 0
-        table = [["Category", "Date", "Amount in $"]]
         if chat_id not in list(user_list.keys()):
             raise Exception("Sorry! No spending records found!")
         if len(user_list[chat_id].transactions) == 0:
             raise Exception("Sorry! No spending records found!")
         else:
-            for category in user_list[chat_id].transactions.keys():
-                for transaction in user_list[chat_id].transactions[category]:
-                    count = count + 1
-                    date = transaction["Date"].strftime("%m/%d/%y")
-                    value = format(transaction["Value"], ".2f")
-                    table.append([date, category, "$" + value])
-            if count == 0:
-                raise Exception("Sorry! No spending records found!")
-
-            s = io.StringIO()
-            csv.writer(s).writerows(table)
-            s.seek(0)
-            buf = io.BytesIO()
-            buf.write(s.getvalue().encode())
-            buf.seek(0)
-            buf.name = "history.csv"
-            # bot.send_document(chat_id, buf)
-            # category = bot.reply_to(message, "Enter category name")
             category = bot.send_message(message.chat.id, "Enter your email id")
             bot.register_next_step_handler(category, acceptEmailId)
 
@@ -454,71 +433,64 @@ def acceptEmailId(message):
             chat_id = str(message.chat.id)
             count = 0
             table = [["Category", "Date", "Amount in $"]]
-            if chat_id not in list(user_list.keys()):
-                raise Exception("Sorry! No spending records found!")
-            if len(user_list[chat_id].transactions) == 0:
-                raise Exception("Sorry! No spending records found!")
-            else:
-                for category in user_list[chat_id].transactions.keys():
-                    for transaction in user_list[chat_id].transactions[category]:
-                        count = count + 1
-                        date = transaction["Date"].strftime("%m/%d/%y")
-                        value = format(transaction["Value"], ".2f")
-                        table.append([date, category, "$" + value])
-                if count == 0:
-                    raise Exception("Sorry! No spending records found!")
+            for category in user_list[chat_id].transactions.keys():
+                for transaction in user_list[chat_id].transactions[category]:
+                    count = count + 1
+                    date = transaction["Date"].strftime("%m/%d/%y")
+                    value = format(transaction["Value"], ".2f")
+                    table.append([date, category, "$" + value])
 
-                with open("history.csv", "w", newline="") as file:
-                    writer = csv.writer(file)
-                    writer.writerows(table)
-                # s = io.StringIO()
-                # csv.writer(s).writerows(table)
-                # s.seek(0)
-                # buf = io.StringIO()
-                # buf.write(s.getvalue().encode())
-                # buf.seek(0)
-                # buf.name = "history.csv"
-                # writer = csv.writer(buf, dialect='excel', delimiter = ',')
-                # writer.writerow(u"date", u"category", u"cost")
+            with open("./data/history.csv", "w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerows(table)
+            # s = io.StringIO()
+            # csv.writer(s).writerows(table)
+            # s.seek(0)
+            # buf = io.StringIO()
+            # buf.write(s.getvalue().encode())
+            # buf.seek(0)
+            # buf.name = "history.csv"
+            # writer = csv.writer(buf, dialect='excel', delimiter = ',')
+            # writer.writerow(u"date", u"category", u"cost")
 
-                # bot.send_document(chat_id, buf)
-                mail_content = """Hello,
-                This email has an attached copy of your expenditure history.
-                Thank you!
-                """
-                # The mail addresses and password
-                sender_address = "test.uses.csc510@gmail.com"
-                sender_pass = "yqll wvfb jluw gfpy"
-                receiver_address = email
-                # Setup the MIME
-                message = MIMEMultipart()
-                message["From"] = sender_address
-                message["To"] = receiver_address
-                message["Subject"] = "Spending History document"
-                # The subject line
-                # The body and the attachments for the mail
-                message.attach(MIMEText(mail_content, "plain"))
-                attach_file_name = "history.csv"
-                attach_file = open(attach_file_name, "rb")
-                payload = MIMEBase("application", "octate-stream")
-                payload.set_payload((attach_file).read())
-                encoders.encode_base64(payload)  # encode the attachment
-                # add payload header with filename
-                payload.add_header(
-                    "Content-Decomposition", "attachment", filename=attach_file_name
-                )
-                message.attach(payload)
-                # Create SMTP session for sending the mail
-                session = smtplib.SMTP("smtp.gmail.com", 587)  # use gmail with port
-                session.starttls()  # enable security
-                session.login(
-                    sender_address, sender_pass
-                )  # login with mail_id and password
-                text = message.as_string()
-                session.sendmail(sender_address, receiver_address, text)
-                session.quit()
+            # bot.send_document(chat_id, buf)
+            mail_content = """Hello,
+            This email has an attached copy of your expenditure history.
+            Thank you!
+            """
+            # The mail addresses and password
+            sender_address = "test.uses.csc510@gmail.com"
+            sender_pass = "yqll wvfb jluw gfpy"
+            receiver_address = email
+            # Setup the MIME
+            message = MIMEMultipart()
+            message["From"] = sender_address
+            message["To"] = receiver_address
+            message["Subject"] = "Spending History document"
+            # The subject line
+            # The body and the attachments for the mail
+            message.attach(MIMEText(mail_content, "plain"))
+            attach_file_name = "./data/history.csv"
+            attach_file = open(attach_file_name, "rb")
+            payload = MIMEBase("application", "octate-stream")
+            payload.set_payload((attach_file).read())
+            encoders.encode_base64(payload)  # encode the attachment
+            # add payload header with filename
+            payload.add_header(
+                "Content-Decomposition", "attachment", filename=attach_file_name
+            )
+            message.attach(payload)
+            # Create SMTP session for sending the mail
+            session = smtplib.SMTP("smtp.gmail.com", 587)  # use gmail with port
+            session.starttls()  # enable security
+            session.login(
+                sender_address, sender_pass
+            )  # login with mail_id and password
+            text = message.as_string()
+            session.sendmail(sender_address, receiver_address, text)
+            session.quit()
 
-                # bot.send_message(message.chat.id, 'Mail Sent')
+            # bot.send_message(message.chat.id, 'Mail Sent')
 
         except Exception as ex:
             logger.error(str(ex), exc_info=True)
@@ -1128,11 +1100,6 @@ def member_list(message):
             member_list_str += "{}. {}   {}  ".format(
                 index + 1, member, user_list[chat_id].members[member][0]
             )
-            if len(user_list[chat_id].members[member]) > 1:
-                idx = 1
-                while len(user_list[chat_id].members[member]) - idx > 0:
-                    member_list_str += user_list[chat_id].members[member][idx] + " "
-                    idx += 1
             member_list_str += "\n"
         bot.send_message(chat_id, member_list_str)
 
@@ -1192,6 +1159,30 @@ def receive_delete_member(message):
         print("Exception occurred : ")
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, str(ex))
+
+
+@bot.message_handler(commands=["clearBill"])
+def clear_Bill(message):
+    """
+    This function clear the bill history for the spliting function
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        if len(user_list[chat_id].members.keys()) < 2:
+            raise Exception("There should be at least 2 users to split the bill")
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        user_list[chat_id].clear_bills()
+        bot.send_message(chat_id, "Successfully clear previous bills! ")
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
 
 
 @bot.message_handler(commands=["splitBill"])
@@ -1363,10 +1354,90 @@ def receive_new_bill_debator(message):
         bot.reply_to(message, str(ex))
 
 
-# @bot.message_handler(commands=["viewSplitBill"])
-# def view_split_Bill(message):
-#     bot.send_message(message.chat.id, user_list[str(message.chat.id)].members.keys())
-#     bot.send_message(message.chat.id, user_list[str(message.chat.id)].members.values())
+@bot.message_handler(commands=["viewSplitBill"])
+def view_split_Bill(message):
+    """
+    This function is for viewing bill information
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        if len(user_list[str(message.chat.id)].members) == 0:
+            raise Exception("Oops! There are no members!")
+        bills = list(user_list[str(message.chat.id)].members.values())[0][1]
+        if len(bills) == 1:
+            raise Exception("Oops! There are no bills!")
+        string = ""
+        for member in user_list[str(message.chat.id)].members.keys():
+            string += member + "\n"
+            bills = user_list[str(message.chat.id)].members[member][1]
+            for bill_name in bills.keys():
+                if bill_name == "total":
+                    continue
+                string += f"{bill_name}: {bills[bill_name]}\n"
+            string += "\n"
+            string += user_list[str(message.chat.id)].get_description(member) + "\n"
+        bot.send_message(message.chat.id, string)
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
+@bot.message_handler(commands=["emailBill"])
+def email_bill(message):
+    """
+    This function email the bill information to the members for the splitting function
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        if chat_id not in list(user_list.keys()):
+            raise Exception("Sorry! No spending records found!")
+        if len(user_list[chat_id].transactions) == 0:
+            raise Exception("Sorry! No spending records found!")
+        else:
+            for member, memeber_value in user_list[str(message.chat.id)].members.items():
+                string = ""
+                bills = user_list[str(message.chat.id)].members[member][1]
+                for bill_name in bills.keys():
+                    if bill_name == "total":
+                        continue
+                    string += f"{bill_name}: ${bills[bill_name]}\n"
+                string += "\n"
+                string += user_list[str(message.chat.id)].get_description(member)
+                mail_content = "Hello, \n\n" + "This email has an attached copy of your billing information. \n\n" + f"{string} \n" + "Thanks!"
+
+                sender_address = "test.uses.csc510@gmail.com"
+                sender_pass = "yqll wvfb jluw gfpy"
+                receiver_address = memeber_value[0]
+
+                text = MIMEMultipart()
+                text["From"] = sender_address
+                text["To"] = receiver_address
+                text["Subject"] = "Billing document"
+                text.attach(MIMEText(mail_content, "plain"))
+
+                session = smtplib.SMTP("smtp.gmail.com", 587)  # use gmail with port
+                session.starttls()  # enable security
+                session.login(
+                    sender_address, sender_pass
+                )  # login with mail_id and password
+                text = text.as_string()
+                session.sendmail(sender_address, receiver_address, text)
+                session.quit()
+            bot.send_message(message.chat.id, "Successfully email to the memebers! ")
+
+    except Exception as ex:
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
 
 
 @bot.message_handler(commands=["delete"])
