@@ -2,7 +2,7 @@ import os.path
 import pathlib
 import unittest
 
-from src.user import User
+from src.code.user import User
 
 
 class BaseCase(unittest.TestCase):
