@@ -22,10 +22,9 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 sys.path.append("C:/NCSU/Sem 1/SE/Project 3/slashbot/")
-try:
-    from code.user import User
-except:
-    from user import User
+
+from code.user import User
+
 
 api_token = os.environ["API_TOKEN"]
 # api_token = "6548509986:AAGqxVHFel8qb7pnJRd6EjAQUKUp0x2MSBA"
