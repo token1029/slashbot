@@ -2,11 +2,11 @@ import unittest
 from BaseCase import BaseCase
 class TestAddmember(BaseCase):
     """
-    Unit test for adding custom category
+    Unit test for adding or reducing members
     """
     def test_add_member(self):
         """
-        Adding a custom category, reflects the new category in the list
+        Adding a custom member, reflects the new member in the list
         """
         custom_member = "bbb"
         custom_id="0001"
@@ -21,16 +21,17 @@ class TestAddmember(BaseCase):
 
     def test_delete_member(self):
         """
-        Adding a custom category, reflects the new category in the list
+        deleting undesired members
         """
         custom_member = "bbb"
         custom_id="0001"
         self.user.delete_member(custom_member,custom_id)
         raw_content = self.user.members.keys()
-
         userlists=[]
+        
         for mem in raw_content:
             userlists.append(mem)
         assert custom_member not in userlists
+        
 if __name__ == '__main__':
     unittest.main()
