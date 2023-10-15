@@ -7,7 +7,8 @@ from src.code.user import User
 
 class BaseCase(unittest.TestCase):
     """
-    Base case class for all other unit tests to inherit from
+    BaseCase serves as a foundational class for all other unit tests.
+    It sets up common procedures for preparing and cleaning the test environment.
     """
     def setUp(self) -> None:
         """
