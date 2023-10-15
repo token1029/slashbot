@@ -17,7 +17,7 @@ A video link showcases our newly released feature. Just like the previous slashb
 1. The codebase lacked comprehensive documentation. There were a few comments here and there, but they didn't provide a clear understanding of the code's overall structure and logic. Especially, there are no comments on what is the purpose of each variable used and the code was complex, with long functions and nested conditional statements. The original developers who wrote the legacy code may have left the project. As a result, there may be limited knowledge transfer about the code's intricacies and design decisions, further complicating the task of understanding and modifying it.
 So, we had to spend extra time reading through the code and making notes to create our own url and sequence diagram. Besides, we started an internal knowledge-sharing initiative where team members document their understanding of complex sections of the codebase.
 
-Moreover, We had to be cautious about making changes because modifying one part of the code could inadvertently affect other parts. To mitigate this risk, we conducted comprehensive tests after each change to ensure we didn't introduce new issues.
+  Moreover, We had to be cautious about making changes because modifying one part of the code could inadvertently affect other parts. To mitigate this risk, we conducted comprehensive tests after each change to ensure we didn't introduce new issues.
 
 
 
