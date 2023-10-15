@@ -17,6 +17,6 @@ class TestAddmember(BaseCase):
         userlists=[]
         for mem in raw_content:
             userlists.append(mem)
-
+        assert custom_member in userlists
 if __name__ == '__main__':
     unittest.main()
