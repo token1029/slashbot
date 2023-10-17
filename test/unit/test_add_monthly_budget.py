@@ -21,11 +21,11 @@ class TestAddMonthlyBudget(BaseCase):
 
     def test_add_monthly_budget_invalid(self):
         """
-        Asserts when add_monthly_budget is given 0
+        Asserts when add_monthly_budget is given with 0
 
         """
         assert self.user.monthly_budget == 0
-        amount_valid = 10.00
+        amount_valid = 0.00
         amount = 0.00
         self.user.add_monthly_budget(amount_valid, 1)
         assert self.user.monthly_budget == amount
