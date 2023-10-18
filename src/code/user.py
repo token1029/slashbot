@@ -542,7 +542,7 @@ class User:
                 description += f"Give ${abs(data[name]):.2f} to {name}\n"
         return description
         
-    def clear_bills(self):
+    def clear_bills(self, userid):
         """
         Clear the bill historys.
 
@@ -551,6 +551,7 @@ class User:
         for member in self.members.keys():
             self.members[member][1] = {'total': 0.}
             self.members[member][2] = {}
+        self.save_user(userid)
 
     def delete_category(self, category, userid):
         """

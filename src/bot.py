@@ -39,7 +39,7 @@ commands = {
     "splitBill": "Split a bill across members",
     "clearBill": "Clear previous bills to be splited",
     "viewSplitBill": "View the bills has been splited",
-    "emailBill": "Sent email to the members of bills showing the needed transactions", 
+    "emailBill": "Sent email to the members of bills showing the needed transactions",
     "budget": "Set budget for the month",
     "chart": "See your expenditure in different charts",
     "categoryAdd": "Add a new custom category",
@@ -1172,11 +1172,11 @@ def clear_Bill(message):
     """
     try:
         chat_id = str(message.chat.id)
-        if len(user_list[chat_id].members.keys()) < 2:
-            raise Exception("There should be at least 2 users to split the bill")
+        if len(user_list[chat_id].members.keys()) < 1:
+            raise Exception("There is no bill history")
         if chat_id not in user_list.keys():
             user_list[chat_id] = User(chat_id)
-        user_list[chat_id].clear_bills()
+        user_list[chat_id].clear_bills(str(message.chat.id))
         bot.send_message(chat_id, "Successfully clear previous bills! ")
 
     except Exception as ex:
@@ -1310,7 +1310,8 @@ def initiate_new_bill_debator(chat_id):
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup.row_width = 2
         for c in allMembers:
-            if c != str(temp_bill[str_chat_id][2]):
+            if c not in temp_bill[str_chat_id]:
+                # if c != str(temp_bill[str_chat_id][2]):
                 markup.add(c)
         markup.add("There is no more Debator.")
         debator = bot.send_message(
@@ -1368,7 +1369,7 @@ def view_split_Bill(message):
         if len(user_list[str(message.chat.id)].members) == 0:
             raise Exception("Oops! There are no members!")
         bills = list(user_list[str(message.chat.id)].members.values())[0][1]
-        if len(bills) == 1:
+        if len(bills) <= 1:
             raise Exception("Oops! There are no bills!")
         string = ""
         for member in user_list[str(message.chat.id)].members.keys():
@@ -1404,7 +1405,9 @@ def email_bill(message):
         if len(user_list[chat_id].transactions) == 0:
             raise Exception("Sorry! No spending records found!")
         else:
-            for member, memeber_value in user_list[str(message.chat.id)].members.items():
+            for member, memeber_value in user_list[
+                str(message.chat.id)
+            ].members.items():
                 string = ""
                 bills = user_list[str(message.chat.id)].members[member][1]
                 for bill_name in bills.keys():
@@ -1413,7 +1416,12 @@ def email_bill(message):
                     string += f"{bill_name}: ${bills[bill_name]}\n"
                 string += "\n"
                 string += user_list[str(message.chat.id)].get_description(member)
-                mail_content = "Hello, \n\n" + "This email has an attached copy of your billing information. \n\n" + f"{string} \n" + "Thanks!"
+                mail_content = (
+                    "Hello, \n\n"
+                    + "This email has an attached copy of your billing information. \n\n"
+                    + f"{string} \n"
+                    + "Thanks!"
+                )
 
                 sender_address = "test.uses.csc510@gmail.com"
                 sender_pass = "yqll wvfb jluw gfpy"
