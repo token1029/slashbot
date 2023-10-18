@@ -475,16 +475,20 @@ class User:
             for member in self.members.keys():
                 if member != bill[userid][2]:
                     bill_name = bill[userid][0]
-                    self.members[member][1][bill_name] = -single
-                    # update the total number
-                    self.members[member][1]['total'] -= single
-                    total[member] = self.members[member][1]['total']
+                    if member in bill[userid]:
+                        self.members[member][1][bill_name] = -single
+                        # update the total number
+                        self.members[member][1]['total'] -= single
+                        total[member] = self.members[member][1]['total']
+                    else:
+                        self.members[member][1][bill_name] = 0.
+                        total[member] = self.members[member][1]['total']
+
             creditor = bill[userid][2]
             self.members[creditor][1][bill_name] = charge
             # update the total number
             self.members[creditor][1]['total'] += charge
             total[creditor] = self.members[creditor][1]['total']
-            print(total)
 
             # record how to pay
             self.balance(total)
