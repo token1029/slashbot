@@ -512,7 +512,7 @@ class User:
             if total[member] == min_value:
                 min_member = member
         
-        if max_value > min_value:
+        if abs(max_value) > abs(min_value):
             total[max_member] = max_value + min_value
             total[min_member] = 0.
             self.members[max_member][2][min_member] = -min_value
