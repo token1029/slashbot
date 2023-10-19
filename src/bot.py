@@ -22,12 +22,10 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 sys.path.append("C:/NCSU/Sem 1/SE/Project 3/slashbot/")
-try:
-    from code.user import User
-except:
-   from user import User
+from code.user import User
 
 api_token = os.environ["API_TOKEN"]
+# api_token = "6548509986:AAGqxVHFel8qb7pnJRd6EjAQUKUp0x2MSBA"
 commands = {
     "menu": "Display this menu",
     "add": "Record/Add a new spending",
@@ -35,14 +33,22 @@ commands = {
     "history": "Display spending history",
     "delete": "Clear/Erase all your records",
     "edit": "Edit/Change spending details",
+    "addMember": "Record/Add a new member for spliting bills",
+    "memberList": "List all members with associated email address",
+    "memberDelete": "Delete a member",
+    "splitBill": "Split a bill across members",
+    "deleteBill": "Delete a specific bill",
+    "clearBill": "Clear all previous bills to be splited",
+    "viewSplitBill": "View the bills has been splited",
+    "emailBill": "Sent email to the members of bills showing the needed transactions",
     "budget": "Set budget for the month",
     "chart": "See your expenditure in different charts",
     "categoryAdd": "Add a new custom category",
     "categoryList": "List all categories",
     "categoryDelete": "Delete a category",
-    "download":"Download your history",
+    "download": "Download your history",
     "displayDifferentCurrency": "Display the sum of expenditures for the current day/month in another currency",
-    "sendEmail":"Send an email with an attachment showing your history"
+    "sendEmail": "Send an email with an attachment showing your history",
 }
 
 DOLLARS_TO_RUPEES = 75.01
@@ -54,6 +60,8 @@ telebot.logger.setLevel(logging.INFO)
 user_list = {}
 option = {}
 all_transactions = []
+temp_member = {}
+temp_bill = {}
 completeSpendings = 0
 
 logger = logging.getLogger()
@@ -345,7 +353,7 @@ def show_history(message):
                     table.append([date, category, "$ " + value])
             if count == 0:
                 raise Exception("Sorry! No spending records found!")
-            spend_total_str="<pre>"+ tabulate(table, headers='firstrow')+"</pre>"
+            spend_total_str = "<pre>" + tabulate(table, headers="firstrow") + "</pre>"
             bot.send_message(chat_id, spend_total_str, parse_mode="HTML")
 
     except Exception as ex:
@@ -376,7 +384,7 @@ def download_history(message):
                     count = count + 1
                     date = transaction["Date"].strftime("%m/%d/%y")
                     value = format(transaction["Value"], ".2f")
-                    table.append([date, category, "$"+value])
+                    table.append([date, category, "$" + value])
             if count == 0:
                 raise Exception("Sorry! No spending records found!")
 
@@ -386,14 +394,14 @@ def download_history(message):
             buf = io.BytesIO()
             buf.write(s.getvalue().encode())
             buf.seek(0)
-            buf.name = "history.csv"
+            buf.name = "./data/history.csv"
             bot.send_document(chat_id, buf)
-
 
     except Exception as ex:
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, str(ex))
-    
+
+
 @bot.message_handler(commands=["sendEmail"])
 def send_email(message):
     """
@@ -405,31 +413,11 @@ def send_email(message):
     """
     try:
         chat_id = str(message.chat.id)
-        count = 0
-        table = [["Category", "Date", "Amount in $"]]
         if chat_id not in list(user_list.keys()):
             raise Exception("Sorry! No spending records found!")
         if len(user_list[chat_id].transactions) == 0:
             raise Exception("Sorry! No spending records found!")
         else:
-            for category in user_list[chat_id].transactions.keys():
-                for transaction in user_list[chat_id].transactions[category]:
-                    count = count + 1
-                    date = transaction["Date"].strftime("%m/%d/%y")
-                    value = format(transaction["Value"], ".2f")
-                    table.append([date, category, "$"+value])
-            if count == 0:
-                raise Exception("Sorry! No spending records found!")
-
-            s = io.StringIO()
-            csv.writer(s).writerows(table)
-            s.seek(0)
-            buf = io.BytesIO()
-            buf.write(s.getvalue().encode())
-            buf.seek(0)
-            buf.name = "history.csv"
-            # bot.send_document(chat_id, buf)
-            # category = bot.reply_to(message, "Enter category name")
             category = bot.send_message(message.chat.id, "Enter your email id")
             bot.register_next_step_handler(category, acceptEmailId)
 
@@ -440,81 +428,76 @@ def send_email(message):
 
 def acceptEmailId(message):
     email = message.text
-    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-    if(re.fullmatch(regex, email)):
+    regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
+    if re.fullmatch(regex, email):
         try:
             chat_id = str(message.chat.id)
             count = 0
             table = [["Category", "Date", "Amount in $"]]
-            if chat_id not in list(user_list.keys()):
-                raise Exception("Sorry! No spending records found!")
-            if len(user_list[chat_id].transactions) == 0:
-                raise Exception("Sorry! No spending records found!")
-            else:
-                for category in user_list[chat_id].transactions.keys():
-                    for transaction in user_list[chat_id].transactions[category]:
-                        count = count + 1
-                        date = transaction["Date"].strftime("%m/%d/%y")
-                        value = format(transaction["Value"], ".2f")
-                        table.append([date, category, "$"+value])
-                if count == 0:
-                    raise Exception("Sorry! No spending records found!")
+            for category in user_list[chat_id].transactions.keys():
+                for transaction in user_list[chat_id].transactions[category]:
+                    count = count + 1
+                    date = transaction["Date"].strftime("%m/%d/%y")
+                    value = format(transaction["Value"], ".2f")
+                    table.append([date, category, "$" + value])
 
-                with open('history.csv', 'w', newline = '') as file:
-                    writer = csv.writer(file)
-                    writer.writerows(table)
-                # s = io.StringIO()
-                # csv.writer(s).writerows(table)
-                # s.seek(0)
-                # buf = io.StringIO()
-                # buf.write(s.getvalue().encode())
-                # buf.seek(0)
-                # buf.name = "history.csv"
-                # writer = csv.writer(buf, dialect='excel', delimiter = ',')
-                # writer.writerow(u"date", u"category", u"cost")
+            with open("./data/history.csv", "w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerows(table)
+            # s = io.StringIO()
+            # csv.writer(s).writerows(table)
+            # s.seek(0)
+            # buf = io.StringIO()
+            # buf.write(s.getvalue().encode())
+            # buf.seek(0)
+            # buf.name = "history.csv"
+            # writer = csv.writer(buf, dialect='excel', delimiter = ',')
+            # writer.writerow(u"date", u"category", u"cost")
 
-                # bot.send_document(chat_id, buf)
-                mail_content = '''Hello,
-                This email has an attached copy of your expenditure history.
-                Thank you!
-                '''
-                #The mail addresses and password
-                sender_address = 'test.uses.csc510@gmail.com'
-                sender_pass = 'yqll wvfb jluw gfpy'
-                receiver_address = email
-                #Setup the MIME
-                message = MIMEMultipart()
-                message['From'] = sender_address
-                message['To'] = receiver_address
-                message['Subject'] = 'Spending History document'
-                #The subject line
-                #The body and the attachments for the mail
-                message.attach(MIMEText(mail_content, 'plain'))
-                attach_file_name = "history.csv"
-                attach_file = open(attach_file_name, 'rb')
-                payload = MIMEBase('application', 'octate-stream')
-                payload.set_payload((attach_file).read())
-                encoders.encode_base64(payload) #encode the attachment
-                #add payload header with filename
-                payload.add_header('Content-Decomposition', 'attachment', filename=attach_file_name)
-                message.attach(payload)
-                #Create SMTP session for sending the mail
-                session = smtplib.SMTP('smtp.gmail.com', 587) #use gmail with port
-                session.starttls() #enable security
-                session.login(sender_address, sender_pass) #login with mail_id and password
-                text = message.as_string()
-                session.sendmail(sender_address, receiver_address, text)
-                session.quit()
+            # bot.send_document(chat_id, buf)
+            mail_content = """Hello,
+            This email has an attached copy of your expenditure history.
+            Thank you!
+            """
+            # The mail addresses and password
+            sender_address = "test.uses.csc510@gmail.com"
+            sender_pass = "yqll wvfb jluw gfpy"
+            receiver_address = email
+            # Setup the MIME
+            message = MIMEMultipart()
+            message["From"] = sender_address
+            message["To"] = receiver_address
+            message["Subject"] = "Spending History document"
+            # The subject line
+            # The body and the attachments for the mail
+            message.attach(MIMEText(mail_content, "plain"))
+            attach_file_name = "./data/history.csv"
+            attach_file = open(attach_file_name, "rb")
+            payload = MIMEBase("application", "octate-stream")
+            payload.set_payload((attach_file).read())
+            encoders.encode_base64(payload)  # encode the attachment
+            # add payload header with filename
+            payload.add_header(
+                "Content-Decomposition", "attachment", filename=attach_file_name
+            )
+            message.attach(payload)
+            # Create SMTP session for sending the mail
+            session = smtplib.SMTP("smtp.gmail.com", 587)  # use gmail with port
+            session.starttls()  # enable security
+            session.login(
+                sender_address, sender_pass
+            )  # login with mail_id and password
+            text = message.as_string()
+            session.sendmail(sender_address, receiver_address, text)
+            session.quit()
 
-                # bot.send_message(message.chat.id, 'Mail Sent')
-
+            # bot.send_message(message.chat.id, 'Mail Sent')
 
         except Exception as ex:
             logger.error(str(ex), exc_info=True)
             bot.reply_to(message, str(ex))
     else:
-        bot.send_message(message.chat.id, 'incorrect email')
-        
+        bot.send_message(message.chat.id, "incorrect email")
 
 
 @bot.message_handler(commands=["display"])
@@ -1018,6 +1001,500 @@ def receive_delete_category(message):
         bot.reply_to(message, str(ex))
 
 
+@bot.message_handler(commands=["addMember"])
+def add_Member(message):
+    """
+    Handles the command 'categoryAdd' and then displays a message prompting the user to enter the category name.
+    The function 'receive_new_category' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+
+    try:
+        chat_id = str(message.chat.id)
+        # option.pop(chat_id, None)
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        # clear the temp_member attribute To Do : add name with given chat ID
+        temp_member.pop(chat_id, None)
+        memberName = bot.reply_to(message, "Enter Member name")
+        bot.register_next_step_handler(memberName, receive_new_member_name)
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def receive_new_member_name(message):
+    """
+    This function receives the member name that user inputs and save the name under temp_member list
+    The function 'receive_new_member_email' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        memberName = message.text.strip()
+        chat_id = str(message.chat.id)
+        if memberName == "":  # category cannot be empty
+            raise Exception("Member name cannot be empty")
+        if memberName in user_list[chat_id].members:
+            raise Exception("Member already exists!")
+        temp_member[chat_id] = memberName
+        memberEmail = bot.reply_to(message, "Enter Member email address")
+        bot.register_next_step_handler(memberEmail, receive_new_member_email)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def receive_new_member_email(message):
+    """
+    This function receives the member email address that user inputs and then calls user.add_member with
+    member name and member email as input for appeending a new member in the dict
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        memberEmail = message.text.strip()
+        chat_id = str(message.chat.id)
+        regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
+        if re.fullmatch(regex, memberEmail):
+            user_list[chat_id].add_member(temp_member[chat_id], memberEmail, chat_id)
+            bot.send_message(
+                chat_id,
+                "{} has been added as a new member".format(temp_member[chat_id]),
+            )
+        else:
+            bot.send_message(message.chat.id, "incorrect email")
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+@bot.message_handler(commands=["memberList"])
+def member_list(message):
+    """
+    Handles the command 'memberList'. Lists all members.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        chat_id = str(message.chat.id)
+        if len(user_list[chat_id].members.keys()) == 0:
+            raise Exception("Sorry! No members found!")
+        member_list_str = "Here is your member list : \n"
+        for index, member in enumerate(user_list[chat_id].members.keys()):
+            member_list_str += "{}. {}   {}  ".format(
+                index + 1, member, user_list[chat_id].members[member][0]
+            )
+            member_list_str += "\n"
+        bot.send_message(chat_id, member_list_str)
+
+    except Exception as ex:
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
+@bot.message_handler(commands=["memberDelete"])
+def member_delete(message):
+    """
+    Handles the command 'memberDelete'. Lists all members from which the user can choose a member to delete.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        temp_member.pop(chat_id, None)
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        allMembers = user_list[chat_id].members
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup.row_width = 2
+        for c in allMembers:
+            markup.add(c)
+        msg = bot.reply_to(message, "Select a Member to delete", reply_markup=markup)
+        bot.register_next_step_handler(msg, receive_delete_member)
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
+
+def receive_delete_member(message):
+    """
+    Checks whether the selected member can be deleted and calls user.delete_member if the member can be deleted.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        member = message.text.strip()
+        if member not in user_list[chat_id].members:
+            raise Exception("Oops! Member does not exist!")
+        # if len(user_list[chat_id].members[member]) != 0:
+        #     raise Exception(
+        #         "Sorry! This member has transactions. Delete those transactions to proceed."
+        #     )
+        user_list[chat_id].delete_member(member, chat_id)
+        bot.reply_to(message, "{} has been removed from member list".format(member))
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
+@bot.message_handler(commands=["deleteBill"])
+def bill_delete(message):
+    """
+    Handles the command 'memberDelete'. Lists all members from which the user can choose a member to delete.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        allBills = user_list[chat_id].bills
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup.row_width = 2
+        for b in allBills:
+            markup.add(b)
+        msg = bot.reply_to(message, "Select a Bill to delete", reply_markup=markup)
+        bot.register_next_step_handler(msg, receive_delete_bill)
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
+
+def receive_delete_bill(message):
+    """
+    Checks whether the selected member can be deleted and calls user.delete_member if the member can be deleted.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        bill = message.text.strip()
+        user_list[chat_id].delete_bill(bill, chat_id)
+        bot.reply_to(message, "{} has been removed from Bill list".format(bill))
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
+@bot.message_handler(commands=["clearBill"])
+def clear_Bill(message):
+    """
+    This function clears the bill history for the spliting function
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        if len(user_list[chat_id].members.keys()) < 1:
+            raise Exception("There is no bill history")
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        user_list[chat_id].clear_bills(str(message.chat.id))
+        bot.send_message(chat_id, "Successfully clear previous bills! ")
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+@bot.message_handler(commands=["splitBill"])
+def split_Bill(message):
+    """
+    Handles the command 'splitBill', which split a bill across members with percentage.
+    The function 'receive_new_bill_name' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+
+    try:
+        chat_id = str(message.chat.id)
+        if len(user_list[chat_id].members.keys()) < 2:
+            raise Exception("There should be at least 2 users to split the bill")
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        # clear the temp_member attribute To Do : add name with given chat ID
+        temp_bill.pop(chat_id, None)
+        billName = bot.reply_to(message, "Enter Bill name")
+        bot.register_next_step_handler(billName, receive_new_bill_name)
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def receive_new_bill_name(message):
+    """
+    This function receives the bill name that is going to be splited
+    The function 'receive_new_bill_amount' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        billName = message.text.strip()
+        chat_id = str(message.chat.id)
+        if billName == "":  # category cannot be empty
+            raise Exception("Bill name cannot be empty")
+        # bill name at index 0
+        temp_bill[chat_id] = [billName]
+        #
+        # print(temp_bill[chat_id][0])
+        billAmount = bot.reply_to(message, "Enter bill amount")
+        bot.register_next_step_handler(billAmount, receive_new_bill_amount)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def receive_new_bill_amount(message):
+    """
+    This function receives the bill amount that is going to be splited
+    The function 'receive_new_bill_creditor' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        billAmount = int(message.text.strip())
+        chat_id = str(message.chat.id)
+        if billAmount <= 0:  # category cannot be empty
+            raise Exception("Bill should be greater than 0")
+        # bill amount at index 1
+        temp_bill[chat_id].append(billAmount)
+        allMembers = user_list[chat_id].members
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup.row_width = 2
+        for c in allMembers:
+            markup.add(c)
+        creditor = bot.reply_to(message, "Choose a bill creditor", reply_markup=markup)
+        bot.register_next_step_handler(creditor, receive_new_bill_creditor)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Oh no. " + str(ex))
+
+
+def receive_new_bill_creditor(message):
+    """
+    This function receives the bill credtior that pay the bill
+    The function 'receive_new_bill_debtor' is called next.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        creditor = message.text.strip()
+        if creditor not in user_list[chat_id].members:
+            raise Exception("Oops! Member does not exist!")
+        # bill creditor at index 2
+        temp_bill[chat_id].append(creditor)
+        bot.reply_to(message, "{} has been chosen as creditor".format(creditor))
+        initiate_new_bill_debator(message.chat.id)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
+
+def initiate_new_bill_debator(chat_id):
+    """
+    This function initiate receive_new_bill_debator, which is called everytime when a
+    new debator is going to be added
+
+    :param id: the id# of the current chat
+    :type: object
+    :return: None
+    """
+
+    try:
+        str_chat_id = str(chat_id)
+        allMembers = user_list[str_chat_id].members
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup.row_width = 2
+        for c in allMembers:
+            if c not in temp_bill[str_chat_id]:
+                # if c != str(temp_bill[str_chat_id][2]):
+                markup.add(c)
+        markup.add("There is no more Debator.")
+        debator = bot.send_message(
+            chat_id, "Choose a bill debator", reply_markup=markup
+        )
+        # print(temp_bill[str_chat_id][0])
+        # print(str(temp_bill[str_chat_id][1]))
+        # print(str(temp_bill[str_chat_id][2]))
+        bot.register_next_step_handler(debator, receive_new_bill_debator)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.send_message(chat_id, str(ex))
+
+
+def receive_new_bill_debator(message):
+    """
+    This function receives the bill credtior that pay the bill
+    The function 'receive_new_bill_debtor' is called next if the user would like
+    to add more debators
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+
+    try:
+        chat_id = str(message.chat.id)
+        debator = message.text.strip()
+        if debator == "There is no more Debator.":
+            user_list[chat_id].split_bill(temp_bill, chat_id)
+            bot.send_message(message.chat.id, "Your bill has been successfully spilt")
+            return
+        else:
+            # debators starts from index 3...
+            temp_bill[chat_id].append(debator)
+            initiate_new_bill_debator(chat_id)
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
+@bot.message_handler(commands=["viewSplitBill"])
+def view_split_Bill(message):
+    """
+    This function is for viewing bill information
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        if len(user_list[str(message.chat.id)].members) == 0:
+            raise Exception("Oops! There are no members!")
+        bills = list(user_list[str(message.chat.id)].members.values())[0][1]
+        if len(bills) <= 1:
+            raise Exception("Oops! There are no bills!")
+        string = ""
+        for member in user_list[str(message.chat.id)].members.keys():
+            string += member + "\n"
+            bills = user_list[str(message.chat.id)].members[member][1]
+            for bill_name in bills.keys():
+                if bill_name == "total":
+                    continue
+                string += f"{bill_name}: {bills[bill_name]}\n"
+            string += "\n"
+            string += user_list[str(message.chat.id)].get_description(member) + "\n"
+        bot.send_message(message.chat.id, string)
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
+@bot.message_handler(commands=["emailBill"])
+def email_bill(message):
+    """
+    This function email the bill information to the members for the splitting function
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        if chat_id not in list(user_list.keys()):
+            raise Exception("Sorry! No spending records found!")
+        if len(user_list[chat_id].transactions) == 0:
+            raise Exception("Sorry! No spending records found!")
+        else:
+            for member, memeber_value in user_list[
+                str(message.chat.id)
+            ].members.items():
+                string = ""
+                bills = user_list[str(message.chat.id)].members[member][1]
+                for bill_name in bills.keys():
+                    if bill_name == "total":
+                        continue
+                    string += f"{bill_name}: ${bills[bill_name]}\n"
+                string += "\n"
+                string += user_list[str(message.chat.id)].get_description(member)
+                mail_content = (
+                    "Hello, \n\n"
+                    + "This email has an attached copy of your billing information. \n\n"
+                    + f"{string} \n"
+                    + "Thanks!"
+                )
+
+                sender_address = "test.uses.csc510@gmail.com"
+                sender_pass = "yqll wvfb jluw gfpy"
+                receiver_address = memeber_value[0]
+
+                text = MIMEMultipart()
+                text["From"] = sender_address
+                text["To"] = receiver_address
+                text["Subject"] = "Billing document"
+                text.attach(MIMEText(mail_content, "plain"))
+
+                session = smtplib.SMTP("smtp.gmail.com", 587)  # use gmail with port
+                session.starttls()  # enable security
+                session.login(
+                    sender_address, sender_pass
+                )  # login with mail_id and password
+                text = text.as_string()
+                session.sendmail(sender_address, receiver_address, text)
+                session.quit()
+            bot.send_message(message.chat.id, "Successfully email to the memebers! ")
+
+    except Exception as ex:
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
 @bot.message_handler(commands=["delete"])
 def command_delete(message):
     """
@@ -1181,7 +1658,7 @@ def get_chart(message):
     :return: None
     """
     # Original Code
-    
+
     # chat_id = str(message.chat.id)
     # chart_file = user_list[chat_id].create_chart(chat_id)
     # with open(chart_file, "rb") as f:
@@ -1195,7 +1672,6 @@ def get_chart(message):
         with open(cf, "rb") as f:
             bot.send_photo(chat_id, f)
             # bot.send_photo(chat_id, cf)
-
 
 
 def create_header(user):
@@ -1311,6 +1787,7 @@ def command_display_currency(message):
             logger.error(str(ex), exc_info=True)
             bot.reply_to(message, "Oops! - \nError : " + str(ex))
 
+
 def display_total_currency(message):
     """
     Receives the input time period and displays the transaction summary for the corresponding time period.
@@ -1382,11 +1859,11 @@ def display_total_currency(message):
             total_spendings += query_result
             total_spendings += "Total Value {:.2f}\n".format(total_value)
             total_spendings += "Budget for the month {}".format(str(budget_value))
-            global completeSpendings # pylint: disable=global-statement
+            global completeSpendings  # pylint: disable=global-statement
             completeSpendings = total_value
             choice = bot.reply_to(
-                        message, "Which currency to you want to covert to?", reply_markup=markup
-                    )
+                message, "Which currency to you want to covert to?", reply_markup=markup
+            )
             bot.register_next_step_handler(choice, display_total_currency2)
             # bot.send_message(chat_id, total_spendings)
 
@@ -1402,33 +1879,30 @@ def display_total_currency2(message):
         selection = message.text
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup.row_width = 2
-        
+
         if selection == "INR":
             completeExpenses = completeSpendings * DOLLARS_TO_RUPEES
-            completeExpensesMessage = (
-            "The total expenses in INR is Rs. " + str(completeExpenses)
-        )
+            completeExpensesMessage = "The total expenses in INR is Rs. " + str(
+                completeExpenses
+            )
             bot.reply_to(message, completeExpensesMessage)
         if selection == "EUR":
             completeExpenses = completeSpendings * DOLLARS_TO_EUROS
             completeExpensesMessage = (
-            "The total expenses in EUR is " + str(completeExpenses) + " EUR"
-        )
+                "The total expenses in EUR is " + str(completeExpenses) + " EUR"
+            )
             bot.reply_to(message, completeExpensesMessage)
         if selection == "CHF":
             completeExpenses = completeSpendings * DOLLARS_TO_EUROS
             completeExpensesMessage = (
-            "The total expenses in Swiss Franc is " + str(completeExpenses) + " CHF"
-        )
+                "The total expenses in Swiss Franc is " + str(completeExpenses) + " CHF"
+            )
             bot.reply_to(message, completeExpensesMessage)
-
 
     except Exception as ex:
         print("Exception occurred : ")
         logger.error(str(ex), exc_info=True)
         bot.reply_to(message, "Processing Failed - Error: " + str(ex))
-
-
 
 
 if __name__ == "__main__":

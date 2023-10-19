@@ -2,24 +2,32 @@ import os.path
 import pathlib
 import unittest
 
-from src.user import User
+from src.code.user import User
 
 
 class BaseCase(unittest.TestCase):
     """
-    Base case class for all other unit tests to inherit from
+    BaseCase serves as a foundational class for all other unit tests.
+    It sets up common procedures for preparing and cleaning the test environment.
     """
     def setUp(self) -> None:
         """
         Creates a new user
         """
         # os.chdir("test")
+        # Get the absolute path for the 'data' directory
         abspath = pathlib.Path("data").absolute()
+        
+         # If the 'data' directory doesn't exist, create it
         if not os.path.exists(abspath):
             os.mkdir(abspath)
-
+        # Print the current working directory (useful for debugging)
         print(os.getcwd())
+
+        # Create a new User instance for testing
         self.user = User("1")
+
+        # Initialize the expected transactions list
         self.expected_list = self.create_transaction()
 
     def tearDown(self) -> None:
@@ -27,6 +35,8 @@ class BaseCase(unittest.TestCase):
         Removes the user pickle
         """
         abspath = pathlib.Path("data").absolute()
+        
+        # If the 'data' directory doesn't exist, create it
         if not os.path.exists(abspath):
             os.mkdir(abspath)
 
@@ -47,4 +57,5 @@ class BaseCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    # Execute the unit tests
     unittest.main()

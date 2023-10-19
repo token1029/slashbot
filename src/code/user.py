@@ -9,7 +9,9 @@ from datetime import datetime, timedelta
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
-matplotlib.use('agg')
+import numpy as np
+
+matplotlib.use("agg")
 
 logger = logging.getLogger()
 
@@ -30,6 +32,9 @@ class User:
         self.edit_category = {}
         self.monthly_budget = 0
         self.rules = {}
+        # new added 2023
+        self.members = {}
+        self.bills = []
 
         # for the calendar widget
         self.max_date = datetime.today() + timedelta(days=1)
@@ -372,21 +377,29 @@ class User:
         plt.clf()
         plt.pie(totals, labels=labels)
         plt.title("Your Expenditure Report")
-        plt.savefig("data/{}_pie_chart.png".format(userid)) # Ensure that the file name is unique
-        charts.append("data/{}_pie_chart.png".format(userid)) # Ensure that the file name is unique
+        plt.savefig(
+            "data/{}_pie_chart.png".format(userid)
+        )  # Ensure that the file name is unique
+        charts.append(
+            "data/{}_pie_chart.png".format(userid)
+        )  # Ensure that the file name is unique
 
         # Bar Graph
         plt.clf()
         plt.switch_backend("Agg")
         plt.title("Your Expenditure Report")
         plt.bar(labels, totals)
-        plt.xlabel('Categories')
-        plt.ylabel('Expenditure')
+        plt.xlabel("Categories")
+        plt.ylabel("Expenditure")
         plt.title("Your Expenditure Report")
-        plt.savefig("data/{}_bar_chart.png".format(userid)) # Ensure that the file name is unique
-        charts.append("data/{}_bar_chart.png".format(userid)) # Ensure that the file name is unique
+        plt.savefig(
+            "data/{}_bar_chart.png".format(userid)
+        )  # Ensure that the file name is unique
+        charts.append(
+            "data/{}_bar_chart.png".format(userid)
+        )  # Ensure that the file name is unique
 
-        # Add more visualizations here. Maintain the above format while adding more visualizations. 
+        # Add more visualizations here. Maintain the above format while adding more visualizations.
 
         return charts
 
@@ -408,6 +421,176 @@ class User:
 
         except Exception as e:
             logger.error(str(e), exc_info=True)
+
+    def add_member(self, new_member_name, new_email_address, userid):
+        """
+        Stores the member to member list.
+
+        :param new_member: name of the new member
+        :type: string
+        :param userid: userid string which is also the file name
+        :type: string
+        :return: None
+        """
+        try:
+            # self.spend_categories.append(new_category)
+            self.members[new_member_name] = [new_email_address, {'total': 0.}, {}]
+            self.save_user(userid)
+
+        except Exception as e:
+            logger.error(str(e), exc_info=True)
+
+    def delete_member(self, member, userid):
+        """
+        Removes the member from member list.
+
+        :param member: name of the member to be removed
+        :type: string
+        :param userid: userid string which is also the file name
+        :type: string
+        :return: None
+        """
+        try:
+            self.members.pop(member, None)
+            self.save_user(userid)
+
+        except Exception as e:
+            logger.error(str(e), exc_info=True)
+
+    def split_bill(self, bill, userid):
+        """
+        spilt the bill cross the member list.
+
+        :param member: name of the member to be removed
+        :type: string
+        :param userid: userid string which is also the file name
+        :type: string
+        :return: None
+        """
+        try:
+            # self.members[new_member_name] = [new_email_address]
+            self.bills.append(bill[userid][0])
+            total = {}
+            single = bill[userid][1] / (len(bill[userid]) - 2)
+            charge = bill[userid][1] - single
+            # self.members[member].append("Get ")
+            for member in self.members.keys():
+                if member != bill[userid][2]:
+                    bill_name = bill[userid][0]
+                    if member in bill[userid]:
+                        self.members[member][1][bill_name] = -single
+                        # update the total number
+                        self.members[member][1]['total'] -= single
+                        total[member] = self.members[member][1]['total']
+                    else:
+                        self.members[member][1][bill_name] = 0.
+                        total[member] = self.members[member][1]['total']
+
+            creditor = bill[userid][2]
+            self.members[creditor][1][bill_name] = charge
+            # update the total number
+            self.members[creditor][1]['total'] += charge
+            total[creditor] = self.members[creditor][1]['total']
+
+            # record how to pay
+            for member_info in self.members.values():
+                member_info[2] = {}
+            self.balance(total)
+            self.save_user(userid)
+
+        except Exception as e:
+            logger.error(str(e), exc_info=True)
+
+    def balance(self, total):
+        """
+        Calucate the payment information for each memeber.
+
+        :param total: balance information as a dict
+        :type: dict
+        :return: None
+        """
+        if max(abs(np.array(list(total.values())))) <= 1e-2:
+            return
+        
+        max_value = max(np.array(list(total.values())))
+        min_value = min(np.array(list(total.values())))
+        for member in total.keys():
+            if total[member] == max_value:
+                max_member = member
+            if total[member] == min_value:
+                min_member = member
+        
+        if abs(max_value) > abs(min_value):
+            total[max_member] = max_value + min_value
+            total[min_member] = 0.
+            self.members[max_member][2][min_member] = -min_value
+            self.members[min_member][2][max_member] = min_value
+        else:
+            total[min_member] = max_value + min_value
+            total[max_member] = 0.
+            self.members[max_member][2][min_member] = max_value
+            self.members[min_member][2][max_member] = -max_value
+
+        return self.balance(total)
+    
+    def get_description(self, member):
+        """
+        Get the payment description for the given member.
+
+        :param member: name of the member
+        :type: string
+        :return: the corresponding descreption
+        """
+        data = self.members[member][2]
+        description = ""
+        for name in data.keys():
+            if data[name] > 0:
+                description += f"Get ${abs(data[name]):.2f} from {name}\n"
+            elif data[name] < 0:
+                description += f"Give ${abs(data[name]):.2f} to {name}\n"
+        return description
+
+    def delete_bill(self, billName, userid):
+        """
+        Removes the category from category list.
+
+        :param category: name of the category to be removed
+        :type: string
+        :param userid: userid string which is also the file name
+        :type: string
+        :return: None
+        """
+        try:
+            self.bills.remove(billName)
+            total = {}
+            # self.members[member].append("Get ")
+            for member in self.members.keys():
+                if billName in self.members[member][1]:
+                    self.members[member][1]["total"] -= self.members[member][1][billName]
+                    self.members[member][1].pop(billName)
+                    total[member] = self.members[member][1]["total"]
+
+            # record how to pay
+            for member_info in self.members.values():
+                member_info[2] = {}
+            print(total)
+            self.balance(total)
+            self.save_user(userid)
+
+        except Exception as e:
+            logger.error(str(e), exc_info=True)
+
+
+    def clear_bills(self, userid):
+        """
+        Clear the bill historys.
+
+        :return: None
+        """
+        for member in self.members.keys():
+            self.members[member][1] = {'total': 0.}
+            self.members[member][2] = {}
+        self.save_user(userid)
 
     def delete_category(self, category, userid):
         """
