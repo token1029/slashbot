@@ -37,7 +37,8 @@ commands = {
     "memberList": "List all members with associated email address",
     "memberDelete": "Delete a member",
     "splitBill": "Split a bill across members",
-    "clearBill": "Clear previous bills to be splited",
+    "deleteBill": "Delete a specific bill",
+    "clearBill": "Clear all previous bills to be splited",
     "viewSplitBill": "View the bills has been splited",
     "emailBill": "Sent email to the members of bills showing the needed transactions",
     "budget": "Set budget for the month",
@@ -1127,7 +1128,7 @@ def member_delete(message):
         markup.row_width = 2
         for c in allMembers:
             markup.add(c)
-        msg = bot.reply_to(message, "Select Member", reply_markup=markup)
+        msg = bot.reply_to(message, "Select a Member to delete", reply_markup=markup)
         bot.register_next_step_handler(msg, receive_delete_member)
 
     except Exception as ex:
@@ -1161,10 +1162,56 @@ def receive_delete_member(message):
         bot.reply_to(message, str(ex))
 
 
+@bot.message_handler(commands=["deleteBill"])
+def bill_delete(message):
+    """
+    Handles the command 'memberDelete'. Lists all members from which the user can choose a member to delete.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        if chat_id not in user_list.keys():
+            user_list[chat_id] = User(chat_id)
+        allBills = user_list[chat_id].bills
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        markup.row_width = 2
+        for b in allBills:
+            markup.add(b)
+        msg = bot.reply_to(message, "Select a Bill to delete", reply_markup=markup)
+        bot.register_next_step_handler(msg, receive_delete_bill)
+
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, "Processing Failed - \nError : " + str(ex))
+
+
+def receive_delete_bill(message):
+    """
+    Checks whether the selected member can be deleted and calls user.delete_member if the member can be deleted.
+
+    :param message: telebot.types.Message object representing the message object
+    :type: object
+    :return: None
+    """
+    try:
+        chat_id = str(message.chat.id)
+        bill = message.text.strip()
+        user_list[chat_id].delete_bill(bill, chat_id)
+        bot.reply_to(message, "{} has been removed from Bill list".format(bill))
+    except Exception as ex:
+        print("Exception occurred : ")
+        logger.error(str(ex), exc_info=True)
+        bot.reply_to(message, str(ex))
+
+
 @bot.message_handler(commands=["clearBill"])
 def clear_Bill(message):
     """
-    This function clear the bill history for the spliting function
+    This function clears the bill history for the spliting function
 
     :param message: telebot.types.Message object representing the message object
     :type: object
