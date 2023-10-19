@@ -5,7 +5,7 @@
 |Number of commits|3|evidence in(https://github.com/token1029/slashbot/graphs/contributors)|
 |Number of commits: by different people|3|evidence in(https://github.com/token1029/slashbot/graphs/contributors)|
 |Issues reports: there are **many** Issues are being closed|3|evidence in(https://github.com/token1029/slashbot/pulse)|
-|DOI badge: exists|3|evidence in(https://github.com/token1029/slashbot/pulse)|
+|DOI badge: exists|3|evidence in(https://github.com/token1029/slashbot)|
 |Docs: doco generated, format not ugly|3|evidence in(https://github.com/token1029/slashbot/tree/main/docs)|
 |Docs: what: point descriptions of each class/function (in isolation) |3|evidence in(https://github.com/token1029/slashbot/tree/main/docs)|
 |Docs: how: for common use cases X,Y,Z mini-tutorials showing worked examples on how to do X,Y,Z|3|evidence in(https://github.com/token1029/slashbot/tree/main/docs)|
