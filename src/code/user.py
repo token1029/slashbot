@@ -34,6 +34,7 @@ class User:
         self.rules = {}
         # new added 2023
         self.members = {}
+        self.bills = []
 
         # for the calendar widget
         self.max_date = datetime.today() + timedelta(days=1)
@@ -468,6 +469,7 @@ class User:
         """
         try:
             # self.members[new_member_name] = [new_email_address]
+            self.bills.append(bill[userid][0])
             total = {}
             single = bill[userid][1] / (len(bill[userid]) - 2)
             charge = bill[userid][1] - single
@@ -547,7 +549,38 @@ class User:
             elif data[name] < 0:
                 description += f"Give ${abs(data[name]):.2f} to {name}\n"
         return description
-        
+
+    def delete_bill(self, billName, userid):
+        """
+        Removes the category from category list.
+
+        :param category: name of the category to be removed
+        :type: string
+        :param userid: userid string which is also the file name
+        :type: string
+        :return: None
+        """
+        try:
+            self.bills.remove(billName)
+            total = {}
+            # self.members[member].append("Get ")
+            for member in self.members.keys():
+                if billName in self.members[member][1]:
+                    self.members[member][1]["total"] -= self.members[member][1][billName]
+                    self.members[member][1].pop(billName)
+                    total[member] = self.members[member][1]["total"]
+
+            # record how to pay
+            for member_info in self.members.values():
+                member_info[2] = {}
+            print(total)
+            self.balance(total)
+            self.save_user(userid)
+
+        except Exception as e:
+            logger.error(str(e), exc_info=True)
+
+
     def clear_bills(self, userid):
         """
         Clear the bill historys.
