@@ -491,6 +491,8 @@ class User:
             total[creditor] = self.members[creditor][1]['total']
 
             # record how to pay
+            for member_info in self.members.values():
+                member_info[2] = {}
             self.balance(total)
             self.save_user(userid)
 
