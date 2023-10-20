@@ -1,6 +1,6 @@
 |Notes|Scores|evidence|
 |-----|---------|--|
-|Video|3| video is updated for new function|
+|Video|3| video is updated for new function(https://www.youtube.com/watch?v=uIHnW8YmrsU)|
 |Workload is spread over the whole team (one team member is often Xtimes more productive than the others... but nevertheless, here is a track record that everyone is contributing a lot)|3|workloads are spreaded evenly, evidence in (https://github.com/token1029/slashbot/graphs/contributors)|
 |Number of commits|3|evidence in(https://github.com/token1029/slashbot/graphs/contributors)|
 |Number of commits: by different people|3|evidence in(https://github.com/token1029/slashbot/graphs/contributors)|
@@ -10,7 +10,7 @@
 |Docs: what: point descriptions of each class/function (in isolation) |3|evidence in(https://github.com/token1029/slashbot/tree/main/docs)|
 |Docs: how: for common use cases X,Y,Z mini-tutorials showing worked examples on how to do X,Y,Z|3|evidence in(https://github.com/token1029/slashbot/tree/main/docs)|
 |Docs: why: docs tell a story, motivate the whole thing, deliver a punchline that makes you want to rush out and use the thing|3|evidence in(https://github.com/token1029/slashbot/tree/main/docs)|
-|Docs: short video, animated, hosted on your repo. That convinces people why they want to work on your code.|3|
+|Docs: short video, animated, hosted on your repo. That convinces people why they want to work on your code.|3|evidence in (https://www.youtube.com/watch?v=uIHnW8YmrsU)
 |Use of version control tools|3|verified version control, evidence in (https://github.com/token1029/slashbot)|
 |Use of style checkers |3|config files in(https://github.com/token1029/slashbot)|
 |Use of code formatters. |3|evidence in(https://github.com/token1029/slashbot)|
@@ -18,7 +18,7 @@
 |Use of code coverage |3|evidence in(https://github.com/token1029/slashbot/blob/main/codecov.yml)|
 |Other automated analysis tools|3|evidence in(https://github.com/token1029/slashbot)|
 |Test cases exist|3|sufficient test cases exsit https://github.com/token1029/slashbot/tree/main/test|
-|Test cases are routinely executed|3||
+|Test cases are routinely executed|3|evidence (https://github.com/token1029/slashbot/blob/main/test/README.md)|
 |The files CONTRIBUTING.md lists coding standards and lots of tips on how to extend the system without screwing things up|3|evidence in (https://github.com/token1029/slashbot/blob/main/CONTRIBUTING.md)
 |Issues are discussed before they are closed|3|(https://github.com/token1029/slashbot/issues)|
 |Chat channel: exists|3|chat group exists [Link](https://discord.com/invite/x7NhfFdK)|
@@ -31,7 +31,7 @@
 |Does your website and documentation provide a clear, high-level overview of your software?|3|evidence in(https://github.com/token1029/slashbot)|
 |Does your website and documentation clearly describe the type of user who should use your software?|3|evidence in(https://github.com/token1029/slashbot)|
 |Do you publish case studies to show how your software has been used by yourself and others?|3|evidence in(https://github.com/token1029/slashbot)|
-|Is the name of your project/software unique?|3||
+|Is the name of your project/software unique?|3|YES|
 |Is your project/software name free from trademark violations?|3|evidence in(https://github.com/token1029/slashbot)|
 |Is your software available as a package that can be deployed without building it?|3|evidence in(https://github.com/token1029/slashbot/blob/main/setup.py)|
 |Is your software available for free?|3|evidence in(https://github.com/token1029/slashbot)|
@@ -55,7 +55,7 @@
 |Is your software’s architecture and design modular?|3|evidence in(https://github.com/token1029/slashbot)|
 |Does your software use an accepted coding standard or convention?|3|evidence in(https://github.com/token1029/slashbot)|
 |Does your software allow data to be imported and exported using open data formats? e.g. GIF, SVG, HTML, XML, tar, zip, CSV, JSON, NetCDF, or domain specific ones|3|evidence in(https://github.com/token1029/slashbot)|
-|Does your software allow communications using open communications protocols? e.g. HTTP, FTP, XMPP, SOAP over HTTP,  or domain-specific ones|3||
+|Does your software allow communications using open communications protocols? e.g. HTTP, FTP, XMPP, SOAP over HTTP,  or domain-specific ones|3|evidence in(https://github.com/token1029/slashbot)|
 |Is your software cross-platform compatible? e.g. does it run under two or more of Windows, Unix/Linux and Mac OS X, or can be used from within two or more of Internet Explorer, Chrome, Firefox and Safari?|3|evidence in(https://github.com/token1029/slashbot)|
 |Does your software adhere to appropriate accessibility conventions or standards?|3|evidence in(https://github.com/token1029/slashbot)|
 |Does your documentation adhere to appropriate accessibility conventions or standards?|3|evidence in(https://github.com/token1029/slashbot/readme.md)|
@@ -72,25 +72,25 @@
 |Does your software list the web address, and licences for all third-party dependencies and say whether the dependencies are mandatory or optional?|3||
 |Can you download dependencies using a dependency management tool or package manager? e.g. Ivy (http://ant.apache.org/ivy/), Maven (https://maven.apache.org/), Python pip (https://pypi.python.org/pypi/pip) or setuptools (https://pypi.python.org/pypi/setuptools), PHP Composer (https://getcomposer.org/), Ruby gems (https://rubygems.org), or R PackRat (https://rstudio.github.io/packrat/)|3|using python pip|
 |Do you have tests that can be run after your software has been built or deployed to show whether the build or deployment has been successful?|3|evidence in(https://github.com/token1029/slashbot/tree/main/test)|
-|Do you have an automated test suite for your software?|3||
+|Do you have an automated test suite for your software?|3|evidence in (https://github.com/token1029/slashbot/blob/main/test/README.md)|
 |Do you have a framework to periodically (e.g. nightly) run your tests on the latest version of the source code?|3|evidence in (https://github.com/token1029/slashbot/blob/main/pylintrc)|
 |Do you use continuous integration, automatically running tests whenever changes are made to your source code?|3||
-|Are your test results publicly visible?|3||
-|Are all manually-run tests documented?|3||
-|Does your project have resources (e.g. blog, Twitter, RSS feed, Facebook page, wiki, mailing list) that are regularly updated with information about your software?|3|evidence in (https://github.com/token1029/slashbot|
+|Are your test results publicly visible?|3|evidence in (https://github.com/token1029/slashbot/blob/main/test)|
+|Are all manually-run tests documented?|3|evidence in (https://github.com/token1029/slashbot)|
+|Does your project have resources (e.g. blog, Twitter, RSS feed, Facebook page, wiki, mailing list) that are regularly updated with information about your software?|3|evidence in (https://github.com/token1029/slashbot)|
 |Does your website state how many projects and users are associated with your project?|3|evidence in (https://github.com/token1029/slashbot|
-|Do you provide success stories on your website?|3||
+|Do you provide success stories on your website?|3|evidence in (https://github.com/token1029/slashbot)|
 |Do you list your important partners and collaborators on your website?|3|evidence in (https://github.com/token1029/slashbot/graphs/contributors)|
 |Do you list your project's publications on your website or link to a resource where these are available?|3|evidence in (https://github.com/token1029/slashbot/blob/main|
 |Do you list third-party publications that refer to your software on your website or link to a resource where these are available?|3||
-|Can users subscribe to notifications to changes to your source code repository?|3||
+|Can users subscribe to notifications to changes to your source code repository?|3|evidence in (https://github.com/token1029/slashbot/blob/main/CONTRIBUTING.md)|
 |If your software is developed as an open source project (and, not just a project developing open source software), do you have a governance model?|3||
 |Do you accept contributions (e.g. bug fixes, enhancements, documentation updates, tutorials) from people who are not part of your project?|3||
 |Do you have a contributions policy?|3|evidence in (https://github.com/token1029/slashbot/main/CONTRIBUTING.md)|
 |Is your contributions' policy publicly available?|3|evidence in (https://github.com/token1029/slashbot/blob/main/CONTRIBUTING.md)
 |Do contributors keep the copyright/IP of their contributions?|2|evidence in (https://github.com/token1029/slashbot/blob/main/CONTRIBUTING.md)
 |Does your website and documentation clearly state the copyright owners of your software and documentation?|3|evidence in (https://github.com/token1029/slashbot)|
-|Does each of your source code files include a copyright statement?|3||
+|Does each of your source code files include a copyright statement?|0||
 |Does your website and documentation clearly state the licence of your software?|3|evidence in (https://github.com/token1029/slashbot)|
 |Is your software released under an open source licence?|3|evidence in (https://github.com/token1029/slashbot)|
 |Is your software released under an OSI-approved open-source licence?|3||
