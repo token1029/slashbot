@@ -195,6 +195,11 @@ I want to send myself an email for the monthly expenditure
 This project is licensed under the terms of the MIT license. Please check [License](https://github.com/secheaper/slashbot/blob/main/LICENSE) for more details.
 
 
+### Score Card
+---
+https://github.com/token1029/slashbot/blob/main/proj2/proj2rubric.md
+
+
 :sparkles: Contributors
 ---
 
