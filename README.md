@@ -140,20 +140,20 @@ For more info on deployment(Heroku), check out the doc [here](https://github.com
 
 ### Delete member
 
-<p align="center"><img width="700" src="./docs/workflows/add.gif"></p>
+<p align="center"><img width="700" src="https://github.com/token1029/slashbot/blob/main/docs/workflows/memberdelete.png"></p>
 
 1. Enter the `/memberDelete` command
 2. Chose the name of the member
 
 ### View memberList
 
-<p align="center"><img width="700" src="./docs/workflows/delete.gif"></p>
+<p align="center"><img width="700" src="https://github.com/token1029/slashbot/blob/main/docs/workflows/viewmember.png"></p>
 
 1. Enter the `/memberList` command
 
 ### Split a bill
 
-<p align="center"><img width="700" src="./docs/workflows/csv_vis.gif"></p>
+<p align="center"><img width="700" src="https://github.com/token1029/slashbot/blob/main/docs/workflows/splitbill.png"></p>
 
 
 1. Enter the `/splitBill` command
@@ -164,30 +164,30 @@ For more info on deployment(Heroku), check out the doc [here](https://github.com
 
 ### View the splited bill
 
-<p align="center"><img width="700" src="./docs/workflows/download.gif"></p>
+<p align="center"><img width="700" src="https://github.com/token1029/slashbot/blob/main/docs/workflows/viewsplitbill.png"></p>
 
 1. Enter the `/viewSplitBill` command
 
 ### Email the splited bill
 
-<p align="center"><img width="700" src="./docs/workflows/currencyWorking.gif"></p>
+<p align="center"><img width="700" src="https://github.com/token1029/slashbot/blob/main/docs/workflows/emailbill.png"></p>
 
 1. Enter the `/emailBill` command
 
 
 ### Delete a splited bill
 
-<p align="center"><img width="700" src="./docs/workflows/multipleVisualizations.gif"></p>
+<p align="center"><img width="700" src="https://github.com/token1029/slashbot/blob/main/docs/workflows/deletbill.png"></p>
 
 1. Enter the `/deleteBill` command
 2. Chose the name of the bill to delete
 
-### Cleara Bill history
+### Clear Bill history
 
 I want to send myself an email for the monthly expenditure
 
 
-<p align="center"><img width="700" src="./docs/workflows/email.gif"></p>
+<p align="center"><img width="700" src="https://github.com/token1029/slashbot/blob/main/docs/workflows/clearBill.png"></p>
 
 1. Enter the `/clearBill›` command
 
