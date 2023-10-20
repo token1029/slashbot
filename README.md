@@ -24,7 +24,7 @@
 
 ## Demo Video
 
-https://youtu.be/NBihyIU13pw
+https://www.youtube.com/watch?v=uIHnW8YmrsU
 
 ## About SlashBot
 
@@ -39,6 +39,12 @@ With simple commands, this bot allows you to:
 - Visualize your spendings in the form of graphs/pie chart using the /chart option
 - Email the history CSV file to yourself
 - See the total daily/monthly expenditure in different currencies
+- Add/Delete members
+- Displays members
+- split bills across different
+- email splited bill to members involved
+- display splited bill
+- delete bills splited
 
 Check out the bot here: https://t.me/ncsuBot
 
@@ -52,21 +58,22 @@ Sample demos are shown below. They are run on a local machine.
 
 # :star: Whats New
 
-### Release Version 1.2.1
+### Release Version 1.3.1
 
-- See your total daily/monthly expenditure in differet currencies using the /displayDifferentCurrency command
-- Download your spendings history CSV file using the /download command
-- Email the monthly spendings history to yourself using the /sendEmail command
-- User can now get a message when the monthly budget is exhausted.
+- Split a bill acrross different members using the /splitBill command
+- Email the bill splited to members involved using the /emailBill command
+- Display the bill history using the /viewSplitBill
+- Delete the bill by choosing the name of the bill by using /deleteBill
 - Details for testing requirements added in README.md
+- Add more test cases
 
 
-### Release Version 1.2.0
+### Release Version 1.3.0
 
-- Visualize your spendings in the form of graphs
-- The User can now see his expenses across various categories in the form of graphs along with pie charts.
-- Just go on adding multiple spendings using /add and type /chart to see the spendings in the form of graphs.
-- More Badges added in Repository
+- Add members using /addMember
+- Delete the member by choosing the name of the memebr by using /memberDelete
+- Display the members list by using the /memberList
+- Add more documentaions for the functions
 
 
 
@@ -249,11 +256,10 @@ This project is licensed under the terms of the MIT license. Please check [Licen
 
 <table>
   <tr>
-    <td align="center"><a href="http://www.shubhammankar.com/"><img src="https://avatars.githubusercontent.com/u/29366125?v=4" width="75px;" alt=""/><br /><sub><b>Shubham Mankar</b></sub></a></td>
-    <td align="center"><a href="https://github.com/pratikdevnani"><img src="https://avatars.githubusercontent.com/u/43350493?v=4" width="75px;" alt=""/><br /><sub><b>Pratik Devnani</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/moksh98"><img src="https://avatars.githubusercontent.com/u/29693765?v=4" width="75px;" alt=""/><br /><sub><b>Moksh Jain</b></sub></a><br /></td>
-    <td align="center"><a href="https://rahilsarvaiya.tech/"><img src="https://avatars0.githubusercontent.com/u/32304956?v=4" width="75px;" alt=""/><br /><sub><b>Rahil Sarvaiya</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/annie0467"><img src="https://avatars.githubusercontent.com/u/17164255?v=4" width="75px;" alt=""/><br /><sub><b>Anushi Keswani</b></sub></a><br /></td>
+    <td align="center"><a href="[http://www.shubhammankar.com/](https://github.com/KingBanshou)"><img src="https://avatars.githubusercontent.com/u/29366125?v=4" width="75px;" alt=""/><br /><sub><b>Shubham Mankar</b></sub></a></td>
+    <td align="center"><a href="[https://github.com/pratikdevnani](https://github.com/token1029)"><img src="https://avatars.githubusercontent.com/u/43350493?v=4" width="75px;" alt=""/><br /><sub><b>Pratik Devnani</b></sub></a><br /></td>
+    <td align="center"><a href="[[https://github.com/moksh98](https://github.com/token1029/slashbot/commits?author=Itaru-Shin)](https://github.com/Itaru-Shin)"><img src="https://avatars.githubusercontent.com/u/29693765?v=4" width="75px;" alt=""/><br /><sub><b>Moksh Jain</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/WeizhiGao"><img src="https://avatars0.githubusercontent.com/u/32304956?v=4" width="75px;" alt=""/><br /><sub><b>Rahil Sarvaiya</b></sub></a><br /></td>
   </tr>
 </table>
 
@@ -261,4 +267,4 @@ This project is licensed under the terms of the MIT license. Please check [Licen
 
 # :calling: Support
 
-For any support, email us at mydollarbot@gmail.com/ secheaper@gmail.com
+For any support, email us at wdming1029@gmail.com
