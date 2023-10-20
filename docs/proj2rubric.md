@@ -88,14 +88,14 @@
 |Do you accept contributions (e.g. bug fixes, enhancements, documentation updates, tutorials) from people who are not part of your project?|3||
 |Do you have a contributions policy?|3|evidence in (https://github.com/token1029/slashbot/main/CONTRIBUTING.md)|
 |Is your contributions' policy publicly available?|3|evidence in (https://github.com/token1029/slashbot/blob/main/CONTRIBUTING.md)
-|Do contributors keep the copyright/IP of their contributions?|3||
+|Do contributors keep the copyright/IP of their contributions?|2|evidence in (https://github.com/token1029/slashbot/blob/main/CONTRIBUTING.md)
 |Does your website and documentation clearly state the copyright owners of your software and documentation?|3|evidence in (https://github.com/token1029/slashbot)|
 |Does each of your source code files include a copyright statement?|3||
 |Does your website and documentation clearly state the licence of your software?|3|evidence in (https://github.com/token1029/slashbot)|
 |Is your software released under an open source licence?|3|evidence in (https://github.com/token1029/slashbot)|
 |Is your software released under an OSI-approved open-source licence?|3||
-|Does each of your source code files include a licence header?|3||
+|Does each of your source code files include a licence header?|0||
 |Do you have a recommended citation for your software?|3||
-|Does your website or documentation include a project roadmap (a list of project and development milestones for the next 3, 6 and 12 months)?|3||
-|Does your website or documentation describe how your project is funded, and the period over which funding is guaranteed?|3||
-|Do you make timely announcements of the deprecation of components, APIs, etc.?|3||
+|Does your website or documentation include a project roadmap (a list of project and development milestones for the next 3, 6 and 12 months)?|3|evidence in(https://github.com/token1029/slashbot)|
+|Does your website or documentation describe how your project is funded, and the period over which funding is guaranteed?|3|evidence in(https://github.com/token1029/slashbot)|
+|Do you make timely announcements of the deprecation of components, APIs, etc.?|3|evidence in(https://github.com/token1029/slashbot)|
