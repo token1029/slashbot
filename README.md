@@ -46,8 +46,6 @@ With simple commands, this bot allows you to:
 - display splited bill
 - delete bills splited
 
-Check out the bot here: https://t.me/ncsuBot
-
 ---
 Sample demos are shown below. They are run on a local machine.
 
@@ -190,12 +188,6 @@ I want to send myself an email for the monthly expenditure
 <p align="center"><img width="700" src="https://github.com/token1029/slashbot/blob/main/docs/workflows/clearBill.png"></p>
 
 1. Enter the `/clearBill›` command
-
-
-
-:heart: Acknowledgements
----
-We would like to thank Dr. Timothy Menzies for helping us understand the process of building a good Software Engineering project. We would also like to thank the teaching assistants Xiao Ling, Andre Lustosa, Kewen Peng, Weichen Shi for their support throughout the project.
 
 
 :page_facing_up: License
