@@ -1,10 +1,4 @@
 # :money_with_wings: SlashBot
-<hr>
-<p align="center">
-<a><img width=500 
-  src="/docs/workflows/banner.jpg" alt="Expense tracking made easy!"></a>
-</p>
-<hr>
 
 ![MIT license](https://img.shields.io/badge/License-MIT-green.svg)
 ![GitHub](https://img.shields.io/github/languages/top/secheaper/slashbot?color=red&label=Python&logo=Python&logoColor=yellow)
