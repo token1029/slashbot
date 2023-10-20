@@ -129,115 +129,67 @@ For more info on deployment(Heroku), check out the doc [here](https://github.com
 
 # :information_desk_person: Sample Demos
 
-### Budget
+  ### Add member
 
-I want to increase/decrease my monthly budget.
+<p align="center"><img width="700" src="https://github.com/token1029/slashbot/blob/main/docs/workflows/addmember.png"></p>
 
-<p align="center"><img width="700" src="./docs/workflows/budget.gif"></p>
+1. Enter the `/addMember` command
+2. Enter the new new member name
+3. Enter the member email address
 
-1. Enter the `/budget` command
-2. Enter the new budget amount (must be greater than 0)
 
-
-### Add
-
-I just spent money and want to mark it as a transaction! 
+### Delete member
 
 <p align="center"><img width="700" src="./docs/workflows/add.gif"></p>
 
-1. Enter the `/add` command
-2. Click on the date of the transaction
-3. Click on the category to add
-4. Type in the amount spent
+1. Enter the `/memberDelete` command
+2. Chose the name of the member
 
-### Delete
-
-Oh no! I entered a transaction but want to delete it! 
+### View memberList
 
 <p align="center"><img width="700" src="./docs/workflows/delete.gif"></p>
 
-1. Enter the `/delete` command
-2. Based on how many records you want to delete..
-   1. Per day: enter the day to delete
-   2. Per month: enter the month to delete
-   3. All: enter All
-3. The records will be display. Enter YES to confirm, or NO to cancel
+1. Enter the `/memberList` command
 
-### Edit
-
-Oh no! I entered a transaction but entered the wrong category! 
-
-<p align="center"><img width="700" src="./docs/workflows/edit.gif"></p>
-
-1. Enter the `/edit` command
-2. Specify the date, category, and value of the transaction
-3. Specify what part of the transaction to edit (either date, category, or value)
-4. Enter in a new value
-
-### Adding transactions from CSV and displaying chart
-
-I want to add transactions from a CSV my bank gave me, and visalize my spendings
+### Split a bill
 
 <p align="center"><img width="700" src="./docs/workflows/csv_vis.gif"></p>
 
 
-1. Drag the .csv file into the telegram chat, and press send
-2. For each transaction, classify the category
-   1. The application will remember these mappings
-3. Enter the `/chart` command
+1. Enter the `/splitBill` command
+2. Enter name of the bill
+3. Enter amount of the bill
+4. Chose Creditor
+5. Chose Debtors
 
-### Download History
-
-I want a CSV file of all my transactions.
+### View the splited bill
 
 <p align="center"><img width="700" src="./docs/workflows/download.gif"></p>
 
-1. Make sure you have a transaction history.
-2. Enter the `/download` command.
-3. A CSV file will be sent with your history.
+1. Enter the `/viewSplitBill` command
 
-### See total Expenditure in different currencies
-
-I want to convert my total daily or monthly expenditure in a different currency.
+### Email the splited bill
 
 <p align="center"><img width="700" src="./docs/workflows/currencyWorking.gif"></p>
 
-1. Enter the /displayDifferentCurrency command
-2. Choose from the category of day or month
-3. Next, Choose your currency from the options
-4. You will get the converted price in that currency
+1. Enter the `/emailBill` command
 
 
-### Visualization in the form of graphs
-
-I want to see my spendings in the form of graphs
+### Delete a splited bill
 
 <p align="center"><img width="700" src="./docs/workflows/multipleVisualizations.gif"></p>
 
-1. Make sure you have a transaction history.
-2. Enter the `/chart` command.
-3. You will see multiple visualizations for your spending 
+1. Enter the `/deleteBill` command
+2. Chose the name of the bill to delete
 
-### SendEmail 
+### Cleara Bill history
 
 I want to send myself an email for the monthly expenditure
 
 
 <p align="center"><img width="700" src="./docs/workflows/email.gif"></p>
 
-1. Make sure you have a transaction history.
-2. Enter the `/sendEmail` command.
-3. Type the intended email address
-4. You will get an email with the history file as attachment
-
-# :grey_question: Documentation
-
-Thorough documentation of all methods and classes can be found at [Github Pages](https://mtkumar123.github.io/MyDollarBot/)
-
-# :construction: Road Map
-
-Our ideas for new features that can be implemented to make this project better can be seen in our RoadMap project board.
-[Road Map](https://github.com/secheaper/slashbot/projects/1)
+1. Enter the `/clearBill›` command
 
 
 
